@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Weather</string>
+    <string name="text_binding">MainFragmentWithHelpBinding</string>
+    <string name="pressed_button">PressedButton</string>
 </resources>
