@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import com.example.weather.AppState
 import com.example.weather.R
 import com.example.weather.databinding.FragmentMainBinding
+import com.google.android.material.snackbar.Snackbar
 
 class MainFragment : Fragment() {
 
@@ -35,16 +37,31 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        val observer = Observer<Any> { renderData (it) }
+        val observer = Observer<AppState> { renderData (it) }
         val liveDataToObserve =  viewModel.getLiveData()
         liveDataToObserve.observe(viewLifecycleOwner, observer)
-        binding.message.setText(R.string.text_binding)
-        binding.button.setOnClickListener { Toast.makeText(context, R.string.pressed_button, Toast.LENGTH_LONG).show() }
+        viewModel.getWeather()
         // TODO: Use the ViewModel
     }
 
-    private fun renderData(data: Any) {
-        Toast.makeText(context, "data", Toast.LENGTH_LONG).show()
+    private fun renderData(appState:AppState) {
+        val loadingLayout = binding.loadingLayout
+        val mainView = binding.mainView
+        when (appState){
+            is AppState.Loading -> loadingLayout.visibility = View.VISIBLE
+            is AppState.Success -> {
+                val weatherData = appState.weatherData
+                loadingLayout.visibility = View.GONE
+                Snackbar.make(mainView, "Success", Snackbar.LENGTH_LONG).show()
+            }
+            is AppState.Error -> {
+                loadingLayout.visibility = View.GONE
+                Snackbar
+                    .make(mainView, "Error", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("Reload") { viewModel.getWeather() }
+                    .show()
+            }
+        }
     }
 
     override fun onDestroyView(){
