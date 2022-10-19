@@ -26,7 +26,7 @@ class WeatherListFragment : Fragment() {
        fun newInstance() = WeatherListFragment()
     }
 
-    // создание переменной для доступа к WeatherListViewModel
+    /*// создание переменной для доступа к WeatherListViewModel
     private lateinit var viewModel: WeatherListViewModel
 
 
@@ -148,7 +148,7 @@ class WeatherListFragment : Fragment() {
         super.onDestroyView()
     }
 
-
+*/
 }
 
 

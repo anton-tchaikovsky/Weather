@@ -47,13 +47,21 @@ class WeatherListViewModel(
             Thread{
                 Thread.sleep(2000)
                 // передача информации об успешной загрузке данных, включающей сами данные о погоде
-                liveData.postValue(AppState.Success(repositoryImpl.getWeather()))
+                    liveData.postValue(AppState.Success(
+                        if (isRussian()) repositoryImpl.getWeatherRussianCities()
+                        else repositoryImpl.getWeatherWorldCities()
+                    ))
             }.start()
         }
         else
             // эммуляция ошибки загрузки данных
             liveData.postValue(AppState.Error(throw IllegalStateException("Ошибка загрузки данных.")))
 
+    }
+
+    // метод эммулирует выбор списка городов
+    private fun isRussian(): Boolean {
+        return true
     }
 
     // метод эммулирует, успешно ли произошла загрузка данных о погоде

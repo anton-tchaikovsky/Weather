@@ -16,13 +16,14 @@ class WeatherMainActivity : AppCompatActivity() {
         binding= WeatherActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // создание и запуск WeatherListFragment
+        // создание и запуск CityListFragment
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, WeatherListFragment.newInstance())
+                .replace(R.id.container, CityListFragment.newInstance())
                 .commitNow()
         }
     }
+
 }
 
 
