@@ -3,13 +3,12 @@ package com.example.weather.view
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckedTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.databinding.CityItemBinding
 import com.example.weather.model.Weather
 
-class CityListFragmentAdapter: RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
+class CityListFragmentAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
 
     private var dataWeatherList:List<Weather> = listOf()
 
@@ -34,9 +33,15 @@ class CityListFragmentAdapter: RecyclerView.Adapter<CityListFragmentAdapter.View
 
         private var binding:CityItemBinding = CityItemBinding.bind(itemView)
 
-        fun setCity (dataWeather: Weather){
-            binding.cityName.text = dataWeather.city.cityName
+        fun setCity (weather: Weather){
+            binding.cityName.text = weather.city.cityName
+            itemView.setOnClickListener {itemCityClickListener?.onClick(weather)}
         }
 
     }
+
+    fun removeListener(){
+        itemCityClickListener=null
+    }
+
 }

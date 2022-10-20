@@ -38,7 +38,7 @@ class WeatherListViewModel(
     private fun isConnect() = false
 
     // метод обеспечивает формирование данных о состоянии загрузки данных о погоде с помощью  liveData и передачу данных о погоде
-    fun getDataWeather() {
+    fun getDataWeather(isRussian: Boolean) {
         getSelectionSource(isConnect())
 
         if (isSuccess()){
@@ -48,7 +48,7 @@ class WeatherListViewModel(
                 Thread.sleep(2000)
                 // передача информации об успешной загрузке данных, включающей сами данные о погоде
                     liveData.postValue(AppState.Success(
-                        if (isRussian()) repositoryImpl.getWeatherRussianCities()
+                        if (isRussian) repositoryImpl.getWeatherRussianCities()
                         else repositoryImpl.getWeatherWorldCities()
                     ))
             }.start()
@@ -59,9 +59,12 @@ class WeatherListViewModel(
 
     }
 
-    // метод эммулирует выбор списка городов
-    private fun isRussian(): Boolean {
-        return true
+    fun getDataWeatherRus(){
+        liveData.value = AppState.Success(repositoryImpl.getWeatherRussianCities())
+    }
+
+    fun getDataWeatherWorld(){
+        liveData.value = AppState.Success(repositoryImpl.getWeatherWorldCities())
     }
 
     // метод эммулирует, успешно ли произошла загрузка данных о погоде

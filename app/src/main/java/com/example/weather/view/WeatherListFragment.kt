@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
@@ -23,10 +24,17 @@ class WeatherListFragment : Fragment() {
 
     // создание companion object (статического метода) для получения экземпляра WeatherListFragment
     companion object {
-       fun newInstance() = WeatherListFragment()
+        const val BUNDLE_EXTRA = "weather"
+        fun newInstance(weather: Weather):WeatherListFragment{
+           val weatherListFragment = WeatherListFragment()
+           val bundle = Bundle()
+            bundle.putParcelable(BUNDLE_EXTRA, weather)
+            weatherListFragment.arguments = bundle
+           return weatherListFragment
+       }
     }
 
-    /*// создание переменной для доступа к WeatherListViewModel
+    // создание переменной для доступа к WeatherListViewModel
     private lateinit var viewModel: WeatherListViewModel
 
 
@@ -49,14 +57,6 @@ class WeatherListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
         viewModel = ViewModelProvider(this)[WeatherListViewModel::class.java]
-        // создание ссылки на LiveData из WeatherListViewModel
-        val liveDataToObserve = viewModel.getLiveData()
-        // создание наблюдателя
-        val observer = Observer<AppState> {
-            renderData(it) //метод, который реализует наблюдатель при получении данных от LiveData
-        }
-        // передача liveData информации о владельце жизненным циклом WeatherListFragment и наблюдателе
-        liveDataToObserve.observe(viewLifecycleOwner, observer)
 
         // создание ссылки на LiveDataBackground из WeatherListViewModel
         val liveDataBackground = viewModel.getLiveDataBackground()
@@ -70,10 +70,22 @@ class WeatherListFragment : Fragment() {
         // запрос во WeatherListViewModel для подучения информации, необходимой для установки фона root макета WeatherListFragment
         viewModel.getBackground()
 
-        // запрос во WeatherListViewModel для подучения информации о погоде
-        // (через отдельный метод для обработки исключения, вызываемого отсутствием подключения к источнику данных)
-        getDataWeather()
+        val weather: Weather?= arguments?.getParcelable<Weather?>(BUNDLE_EXTRA)
 
+        if(weather!=null)
+           setWeather(weather)
+
+    }
+
+    private fun setWeather(weather: Weather) {
+        binding.cityName.text = weather.city.cityName
+        binding.cityCoordinates.text = String.format(
+            getString(R.string.city_coordinates),
+            weather.city.lat,
+            weather.city.lon
+        )
+        binding.temperatureValue.text = weather.temperature.toString()
+        binding.feelsLikeValue.text = weather.feelsLike.toString()
     }
 
     // метод устанавливает фон root макета WeatherListFragment на основе данных полученных от liveDataBackground
@@ -86,69 +98,11 @@ class WeatherListFragment : Fragment() {
         }
     }
 
-    // запрос во WeatherListViewModel для подучения информации о погоде (в том числе о состоянии загрузки данных), обработка исключения, вызываемого отсутствием подключения к источнику данных
-    private fun getDataWeather() {
-        try {
-            viewModel.getDataWeather()
-        } catch (e: IllegalStateException) {
-            createAlertDialogError(e.message.toString())
-        }
-    }
-
-    // создание диалогового окна на случай отсутствия подключения к источнику данных
-    private fun createAlertDialogError(title: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(title)
-            .setIcon(R.drawable.ic_baseline_error_24)
-            .setCancelable(false)
-            .setPositiveButton("Повторить попытку"
-            ) { _, _ -> getDataWeather()}
-            .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
-            .show()
-    }
-
-    // обработка данных о погоде (в том числе о состоянии загрузки данных), полученных от liveData
-    private fun renderData(appState: AppState) {
-
-            when (appState){
-                AppState.Loading -> {
-                    // включение видимости макета c progressBar
-                    binding.loadingLayout.visibility = View.VISIBLE
-                }
-                is AppState.Success -> {
-                    val weatherData = appState.weatherData
-                    // отключение видимости макета c progressBar
-                    binding.loadingLayout.visibility = View.GONE
-                    // отключение видимости макета c данными о погоде
-                    binding.mainView.visibility = View.VISIBLE
-                    // заполнение макета данными о погоде
-                    setData(weatherData)
-                }
-                is AppState.Error -> {
-                }
-            }
-
-        }
-
-    // метод заполняет данными о погоде соответствующие view
-    private fun setData (weatherData: Weather){
-        binding.cityName.text = weatherData.city.cityName
-        binding.cityCoordinates.text = String.format(
-            getString(R.string.city_coordinates),
-            weatherData.city.lat,
-            weatherData.city.lon
-        )
-        binding.temperatureValue.text = weatherData.temperature.toString()
-        binding.feelsLikeValue.text = weatherData.feelsLike.toString()
-
-    }
-
     override fun onDestroyView(){
         _binding=null
         super.onDestroyView()
     }
 
-*/
 }
 
 
