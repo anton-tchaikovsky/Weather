@@ -5,7 +5,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.weather.model.Repository
+import com.example.weather.model.Location
+import com.example.weather.model.RepositoryListWeather
 import com.example.weather.model.RepositoryLocalImpl
 import com.example.weather.model.RepositoryRemoteImpl
 
@@ -13,12 +14,12 @@ class WeatherListViewModel(
     // создание liveData для данных о погоде
     private val liveData: MutableLiveData<AppState> =
         MutableLiveData(),
-    // создание liveData для данных о фоне
+    // создание liveDataBackground для данных о фоне
     private val liveDataBackground: MutableLiveData<Seasons> = MutableLiveData()
 ) : ViewModel() {
 
     // создание переменной для репозитория, предоставляющего данные о погоде
-    private lateinit var repositoryImpl: Repository
+    private lateinit var repositoryImpl: RepositoryListWeather
 
     // метод для получения liveData
     fun getLiveData() = liveData
@@ -38,7 +39,7 @@ class WeatherListViewModel(
     private fun isConnect() = false
 
     // метод обеспечивает формирование данных о состоянии загрузки данных о погоде с помощью  liveData и передачу данных о погоде
-    fun getDataWeather(isRussian: Boolean) {
+    fun loadingListWeather(location:Location) {
         getSelectionSource(isConnect())
 
         if (isSuccess()){
@@ -48,8 +49,9 @@ class WeatherListViewModel(
                 Thread.sleep(2000)
                 // передача информации об успешной загрузке данных, включающей сами данные о погоде
                     liveData.postValue(AppState.Success(
-                        if (isRussian) repositoryImpl.getWeatherRussianCities()
-                        else repositoryImpl.getWeatherWorldCities()
+                        repositoryImpl.getWeatherList(location)
+                    //if (isRussian) repositoryImpl.getWeatherRussianCities()
+                        //else repositoryImpl.getWeatherWorldCities()
                     ))
             }.start()
         }
@@ -59,12 +61,8 @@ class WeatherListViewModel(
 
     }
 
-    fun getDataWeatherRus(){
-        liveData.value = AppState.Success(repositoryImpl.getWeatherRussianCities())
-    }
-
-    fun getDataWeatherWorld(){
-        liveData.value = AppState.Success(repositoryImpl.getWeatherWorldCities())
+    fun getWeatherList(location:Location){
+        liveData.value = AppState.Success(repositoryImpl.getWeatherList(location))
     }
 
     // метод эммулирует, успешно ли произошла загрузка данных о погоде

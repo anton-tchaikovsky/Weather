@@ -1,7 +1,11 @@
 package com.example.weather.model
 
-class RepositoryRemoteImpl:Repository {
-    override fun getWeather()= Weather()
-    override fun getWeatherWorldCities() = getDataWeatherWorldCities()
-    override fun getWeatherRussianCities() = getDataWeatherRussianCities()
+class RepositoryRemoteImpl:RepositoryListWeather,RepositoryWeather {
+    override fun getWeather(lat:Double, lon:Double)= Weather()
+    override fun getWeatherList(location: Location): List<Weather> {
+        return when(location){
+            Location.LocationRus -> getWeatherListRus()
+            Location.LocationWorld -> getWeatherListWorld()
+        }
+    }
 }

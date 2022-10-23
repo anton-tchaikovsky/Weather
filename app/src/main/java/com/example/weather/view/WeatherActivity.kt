@@ -3,17 +3,18 @@ package com.example.weather.view
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.weather.R
-import com.example.weather.databinding.WeatherActivityMainBinding
+import com.example.weather.databinding.WeatherActivityBinding
 
-class WeatherMainActivity : AppCompatActivity() {
+
+class WeatherActivity : AppCompatActivity() {
 
     // создание переменной binding, относящейся к классу соответствующего макета
-    private lateinit var binding: WeatherActivityMainBinding
+    private lateinit var binding: WeatherActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // создание ссылки на view соответствующего макета
-        binding= WeatherActivityMainBinding.inflate(layoutInflater)
+        binding= WeatherActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // создание и запуск CityListFragment

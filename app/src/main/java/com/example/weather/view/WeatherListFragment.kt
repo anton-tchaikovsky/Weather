@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,7 +15,6 @@ import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.viewmodel.Seasons
 import com.example.weather.model.Weather
-import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
 
 class WeatherListFragment : Fragment() {
@@ -37,7 +34,6 @@ class WeatherListFragment : Fragment() {
     // создание переменной для доступа к WeatherListViewModel
     private lateinit var viewModel: WeatherListViewModel
 
-
     // создание переменной binding, относящейся к классу соответствующего макета
     private var _binding: WeatherFragmentMainBinding? = null
     private val binding get() = _binding!!
@@ -56,7 +52,7 @@ class WeatherListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
-        viewModel = ViewModelProvider(this)[WeatherListViewModel::class.java]
+        viewModel = ViewModelProvider(this@WeatherListFragment)[WeatherListViewModel::class.java]
 
         // создание ссылки на LiveDataBackground из WeatherListViewModel
         val liveDataBackground = viewModel.getLiveDataBackground()
@@ -64,19 +60,20 @@ class WeatherListFragment : Fragment() {
         val observerBackground = Observer<Seasons> {
             renderBackground(it) //метод, который реализует наблюдатель при получении данных от LiveDataBackground
         }
-        // передача liveData информации о владельце жизненным циклом WeatherListFragment и наблюдателе
+        // передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе
         liveDataBackground.observe(viewLifecycleOwner, observerBackground)
 
         // запрос во WeatherListViewModel для подучения информации, необходимой для установки фона root макета WeatherListFragment
         viewModel.getBackground()
 
-        val weather: Weather?= arguments?.getParcelable<Weather?>(BUNDLE_EXTRA)
+        val weather: Weather?= arguments?.getParcelable(BUNDLE_EXTRA)
 
         if(weather!=null)
            setWeather(weather)
 
     }
 
+    // отрисовка данных о погоде в конкретном городе
     private fun setWeather(weather: Weather) {
         binding.cityName.text = weather.city.cityName
         binding.cityCoordinates.text = String.format(

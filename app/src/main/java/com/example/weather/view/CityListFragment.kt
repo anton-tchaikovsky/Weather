@@ -6,15 +6,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
+import com.example.weather.model.Location
 import com.example.weather.model.Weather
-import com.example.weather.model.getDataWeatherWorldCities
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
 
@@ -24,31 +23,27 @@ class CityListFragment : Fragment() {
     private var _binding: FragmentCityListBinding?=null
     private val binding get() = _binding!!
 
-    private val citiesListAdapter = CityListFragmentAdapter(object : OnItemCityClickListener{
-        override fun onClick(weather: Weather) {
-            val manager = activity?.supportFragmentManager
+    // функциональный интерфейс для обработки нажатия на элемент
+    fun interface OnItemCityClickListener{
+        fun onItemClick(weather: Weather)
+    }
 
-            if (manager!=null){
-                manager.beginTransaction()
-                    .add(R.id.container, WeatherListFragment.newInstance(weather))
-                    .addToBackStack("")
-                    .commitAllowingStateLoss()
-            }
+    // создаем адаптер CityListFragmentAdapter и передаем в конструктор объект OnItemCityClickListener,
+    // при этом переопределяем метод onItemClick(Weather) (реализация через лямбду)
+    private val citiesListAdapter = CityListFragmentAdapter { weather ->
+        val manager = activity?.supportFragmentManager
+        manager?.beginTransaction()
+            ?.add(R.id.container, WeatherListFragment.newInstance(weather))
+            ?.addToBackStack("")?.commitAllowingStateLoss()
+    }
 
-        }
-
-    })
-
+    // создаем ссылку на viewModel
     private lateinit var viewModel:WeatherListViewModel
 
     private var isRussian = true
 
     companion object {
         fun newInstance() = CityListFragment()
-    }
-
-    interface OnItemCityClickListener{
-        fun onClick(weather: Weather)
     }
 
     override fun onCreateView(
@@ -60,31 +55,40 @@ class CityListFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        binding.cityFAB.setOnClickListener {
-            isRussian = !isRussian
-            if (isRussian)
-                viewModel.getDataWeatherRus()
-            else
-                viewModel.getDataWeatherWorld()
-        }
-
-        viewModel = ViewModelProvider(this)[WeatherListViewModel::class.java]
-        viewModel.getLiveData().observe(viewLifecycleOwner) { renderData(it) }
-        getDataWeather()
-
         super.onViewCreated(view, savedInstanceState)
 
+        // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
+        viewModel = ViewModelProvider(this@CityListFragment)[WeatherListViewModel::class.java]
+        // создание наблюдателя
+        val observer = Observer<AppState>{renderData(it)}
+        //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе
+        viewModel.getLiveData().observe(viewLifecycleOwner, observer)
+
+        //первичный запрос во WeatherListViewModel для получения информации о погоде
+        getDataWeatherLoading()
+
+        // установка слушателя на FAB
+        binding.cityFAB.setOnClickListener {
+            isRussian = !isRussian
+            if (isRussian){
+                binding.cityFAB.setImageDrawable(resources.getDrawable(R.drawable.russia, null))
+                // запрос во WeatherListViewModel для получения информации о погоде в городах РФ
+                viewModel.getWeatherList(Location.LocationRus)
+            }
+            else{
+                binding.cityFAB.setImageDrawable(resources.getDrawable(R.drawable.world, null))
+                // запрос во WeatherListViewModel для получения информации о погоде в городах мира
+                viewModel.getWeatherList(Location.LocationWorld)
+            }
+        }
     }
 
-
-
-    // запрос во WeatherListViewModel для подучения информации о погоде (в том числе о состоянии загрузки данных), обработка исключения, вызываемого отсутствием подключения к источнику данных
-    private fun getDataWeather() {
+    // первичный запрос во WeatherListViewModel для получения информации о погоде (в том числе о состоянии загрузки данных), обработка исключения, вызываемого отсутствием подключения к источнику данных
+    private fun getDataWeatherLoading() {
         try {
-            viewModel.getDataWeather(isRussian)
+            viewModel.loadingListWeather(Location.LocationRus)
         } catch (e: IllegalStateException) {
             createAlertDialogError(e.message.toString())
         }
@@ -97,7 +101,7 @@ class CityListFragment : Fragment() {
             .setIcon(R.drawable.ic_baseline_error_24)
             .setCancelable(false)
             .setPositiveButton("Повторить попытку"
-            ) { _, _ -> getDataWeather()}
+            ) { _, _ -> getDataWeatherLoading()}
             .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
             .show()
     }
@@ -111,22 +115,28 @@ class CityListFragment : Fragment() {
                 binding.loadingLayout.visibility = View.VISIBLE
             }
             is AppState.Success -> {
-                val weatherData = appState.weatherData
+                val weatherList = appState.weatherList
                 // отключение видимости макета c progressBar
                 binding.loadingLayout.visibility = View.GONE
-                setCitiesList(weatherData)
+                // включение видимости FAB
+                binding.cityFAB.visibility = View.VISIBLE
+
+                setCitiesList(weatherList)
             }
             is AppState.Error -> {
             }
         }
-
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun setCitiesList(weatherData: List<Weather>) {
+    // отрисовка списка городов
+    @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
+    private fun setCitiesList(weatherList: List<Weather>) {
+        // создание переменной для RecyclerView
         val citiesList:RecyclerView = binding.citiesList
-        citiesListAdapter.setCitiesList(weatherData)
+        // передача в адаптер weatherList
+        citiesListAdapter.setCitiesList(weatherList)
         citiesListAdapter.notifyDataSetChanged()
+        // подключение адаптера к RecyclerView
         citiesList.adapter = citiesListAdapter
     }
 

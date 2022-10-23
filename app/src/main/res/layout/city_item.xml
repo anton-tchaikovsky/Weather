@@ -7,7 +7,8 @@
     <CheckedTextView
         android:id="@+id/city_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/city_item_text_size"/>
 
     <View
         android:layout_width="match_parent"

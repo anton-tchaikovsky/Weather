@@ -3,15 +3,17 @@ package com.example.weather.view
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckedTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
-import com.example.weather.databinding.CityItemBinding
 import com.example.weather.model.Weather
 
+// в конструктор передаем объект CityListFragment.OnItemCityClickListener для обработки нажатия на элемент списка
 class CityListFragmentAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
 
     private var dataWeatherList:List<Weather> = listOf()
 
+    // метод для получения списка данных
     fun setCitiesList(dataWeatherList:List<Weather>){
         this.dataWeatherList = dataWeatherList
     }
@@ -29,15 +31,12 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
         return dataWeatherList.size
     }
 
+    // inner необходим для видимости переменных родительского класса
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-
-        private var binding:CityItemBinding = CityItemBinding.bind(itemView)
-
         fun setCity (weather: Weather){
-            binding.cityName.text = weather.city.cityName
-            itemView.setOnClickListener {itemCityClickListener?.onClick(weather)}
+            itemView.findViewById<CheckedTextView>(R.id.city_name).text = weather.city.cityName
+            itemView.setOnClickListener {itemCityClickListener?.onItemClick(weather)}
         }
-
     }
 
     fun removeListener(){
