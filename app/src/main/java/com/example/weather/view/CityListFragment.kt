@@ -16,9 +16,9 @@ import com.example.weather.model.Weather
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 
 class CityListFragment : Fragment() {
-
 
     private var _binding: FragmentCityListBinding?=null
     private val binding get() = _binding!!
@@ -61,12 +61,16 @@ class CityListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
         viewModel = ViewModelProvider(this@CityListFragment)[WeatherListViewModel::class.java]
+
         // создание наблюдателя, обработка исключения, при отсутствии данных
         val observer = Observer<AppState>{
             try {
                 renderData(it)
             } catch (e:IllegalStateException){
-                createAlertDialogError(e.message.toString())
+                //createAlertDialogError(e.message.toString())
+                binding.root.showSnackbar(e.message.toString(), R.string.return_loading){
+                    viewModel.getWeatherListIf(isRussian)
+                }
             }
         }
 
@@ -78,19 +82,30 @@ class CityListFragment : Fragment() {
         }
 
         // установка слушателя на FAB
-        binding.cityFAB.setOnClickListener {
+        binding.cityFAB.setOnClickListener {cityFAB ->
             isRussian = !isRussian
-            if (isRussian){
-                (it as FloatingActionButton).setImageDrawable(resources.getDrawable(R.drawable.russia, activity?.theme))
-                // запрос во WeatherListViewModel для получения информации о погоде в городах РФ
-                viewModel.getWeatherList(Location.LocationRus)
-            }
-            else{
-                (it as FloatingActionButton).setImageDrawable(resources.getDrawable(R.drawable.world, activity?.theme))
-                // запрос во WeatherListViewModel для получения информации о погоде в городах мира
-                viewModel.getWeatherList(Location.LocationWorld)
+            isRussian.let { isRussian ->
+                (cityFAB as FloatingActionButton).setImageDrawableIf(isRussian)
+                viewModel.getWeatherListIf(isRussian)
             }
         }
+    }
+
+    // метод устанавливает изображение на FAB в зависимости от условия isRussian
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun FloatingActionButton.setImageDrawableIf (isRussian: Boolean){
+        if (isRussian)
+            setImageDrawable(resources.getDrawable(R.drawable.russia, activity?.theme))
+        else
+            setImageDrawable(resources.getDrawable(R.drawable.world, activity?.theme))
+    }
+
+    // метод запрашивает данные о погоде WeatherList в зависимости от условия isRussian
+    private fun WeatherListViewModel.getWeatherListIf (isRussian: Boolean){
+        if (isRussian)
+            getWeatherList(Location.LocationRus)
+        else
+            getWeatherList(Location.LocationWorld)
     }
 
     // создание диалогового окна на случай отсутствия подключения к источнику данных
@@ -99,10 +114,15 @@ class CityListFragment : Fragment() {
             .setTitle(title)
             .setIcon(R.drawable.ic_baseline_error_24)
             .setCancelable(false)
-            .setPositiveButton("Повторить попытку"
+            .setPositiveButton(getString(R.string.return_loading)
             ) { _, _ -> viewModel.loadingListWeather(Location.LocationRus)}
             .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
             .show()
+    }
+
+    // создание Snackbar на случай отсутствия подключения к источнику данных
+    private fun View.showSnackbar (message: String, actionTextId: Int, duration:Int = Snackbar.LENGTH_INDEFINITE, action: (View) -> Unit) {
+        Snackbar.make(this, message, duration ).setAction(getString(actionTextId),action ).show()
     }
 
     // обработка данных о погоде (в том числе о состоянии загрузки данных), полученных от liveData
