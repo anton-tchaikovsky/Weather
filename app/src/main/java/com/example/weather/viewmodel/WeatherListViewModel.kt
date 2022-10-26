@@ -41,7 +41,6 @@ class WeatherListViewModel(
     // метод обеспечивает формирование данных о состоянии загрузки данных о погоде с помощью  liveData и передачу данных о погоде
     fun loadingListWeather(location:Location) {
         getSelectionSource(isConnect())
-
         if (isSuccess()){
             // эммуляция загрузки данных
             liveData.value = AppState.Loading
@@ -50,32 +49,27 @@ class WeatherListViewModel(
                 // передача информации об успешной загрузке данных, включающей сами данные о погоде
                     liveData.postValue(AppState.Success(
                         repositoryImpl.getWeatherList(location)
-                    //if (isRussian) repositoryImpl.getWeatherRussianCities()
-                        //else repositoryImpl.getWeatherWorldCities()
                     ))
             }.start()
         }
         else
             // эммуляция ошибки загрузки данных
-            liveData.postValue(AppState.Error(throw IllegalStateException("Ошибка загрузки данных.")))
+            liveData.postValue(AppState.Error(IllegalStateException("Ошибка загрузки данных.")))
 
     }
 
+    // методобеспечивает передачу данных о погоде (без загрузки и ошибки загрузки)
     fun getWeatherList(location:Location){
         liveData.value = AppState.Success(repositoryImpl.getWeatherList(location))
     }
 
     // метод эммулирует, успешно ли произошла загрузка данных о погоде
-    private fun isSuccess(): Boolean {
-        val i = (0..2).random()
-        return i!=1
-    }
+    private fun isSuccess() = (0..2).random()!=1
 
     // метод обеспечивает формирование данных о сезоне и их рассылку с помощью liveDataBackground
     @RequiresApi(Build.VERSION_CODES.N)
     fun getBackground(){
-        val calendar: Calendar = Calendar.getInstance()
-        when(calendar.get(Calendar.MONTH)){
+        when( Calendar.getInstance().get(Calendar.MONTH)){
             in (0..1)  -> liveDataBackground.value = Seasons.Winter
             11 -> liveDataBackground.value = Seasons.Winter
             in (2..4) -> liveDataBackground.value = Seasons.Spring

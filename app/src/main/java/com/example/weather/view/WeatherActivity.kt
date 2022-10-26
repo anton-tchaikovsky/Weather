@@ -8,14 +8,10 @@ import com.example.weather.databinding.WeatherActivityBinding
 
 class WeatherActivity : AppCompatActivity() {
 
-    // создание переменной binding, относящейся к классу соответствующего макета
-    private lateinit var binding: WeatherActivityBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // создание ссылки на view соответствующего макета
-        binding= WeatherActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // создание view соответствующего макета и его установка
+        setContentView(WeatherActivityBinding.inflate(layoutInflater).root)
 
         // создание и запуск CityListFragment
         if (savedInstanceState == null) {

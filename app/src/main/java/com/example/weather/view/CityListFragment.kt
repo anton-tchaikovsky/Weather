@@ -2,20 +2,20 @@ package com.example.weather.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
 import com.example.weather.model.Location
 import com.example.weather.model.Weather
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class CityListFragment : Fragment() {
 
@@ -31,10 +31,11 @@ class CityListFragment : Fragment() {
     // создаем адаптер CityListFragmentAdapter и передаем в конструктор объект OnItemCityClickListener,
     // при этом переопределяем метод onItemClick(Weather) (реализация через лямбду)
     private val citiesListAdapter = CityListFragmentAdapter { weather ->
-        val manager = activity?.supportFragmentManager
-        manager?.beginTransaction()
-            ?.add(R.id.container, WeatherListFragment.newInstance(weather))
-            ?.addToBackStack("")?.commitAllowingStateLoss()
+        activity?.supportFragmentManager?.apply {
+            beginTransaction()
+                .add(R.id.container, WeatherListFragment.newInstance(weather))
+                .addToBackStack("")
+                .commitAllowingStateLoss()}
     }
 
     // создаем ссылку на viewModel
@@ -58,39 +59,37 @@ class CityListFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
         viewModel = ViewModelProvider(this@CityListFragment)[WeatherListViewModel::class.java]
-        // создание наблюдателя
-        val observer = Observer<AppState>{renderData(it)}
-        //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе
-        viewModel.getLiveData().observe(viewLifecycleOwner, observer)
+        // создание наблюдателя, обработка исключения, при отсутствии данных
+        val observer = Observer<AppState>{
+            try {
+                renderData(it)
+            } catch (e:IllegalStateException){
+                createAlertDialogError(e.message.toString())
+            }
+        }
 
-        //первичный запрос во WeatherListViewModel для получения информации о погоде
-        getDataWeatherLoading()
+        viewModel.run {
+            //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе
+            getLiveData().observe(viewLifecycleOwner, observer)
+            //первичный запрос во WeatherListViewModel для получения информации о погоде
+            loadingListWeather(Location.LocationRus)
+        }
 
         // установка слушателя на FAB
         binding.cityFAB.setOnClickListener {
             isRussian = !isRussian
             if (isRussian){
-                binding.cityFAB.setImageDrawable(resources.getDrawable(R.drawable.russia, null))
+                (it as FloatingActionButton).setImageDrawable(resources.getDrawable(R.drawable.russia, activity?.theme))
                 // запрос во WeatherListViewModel для получения информации о погоде в городах РФ
                 viewModel.getWeatherList(Location.LocationRus)
             }
             else{
-                binding.cityFAB.setImageDrawable(resources.getDrawable(R.drawable.world, null))
+                (it as FloatingActionButton).setImageDrawable(resources.getDrawable(R.drawable.world, activity?.theme))
                 // запрос во WeatherListViewModel для получения информации о погоде в городах мира
                 viewModel.getWeatherList(Location.LocationWorld)
             }
-        }
-    }
-
-    // первичный запрос во WeatherListViewModel для получения информации о погоде (в том числе о состоянии загрузки данных), обработка исключения, вызываемого отсутствием подключения к источнику данных
-    private fun getDataWeatherLoading() {
-        try {
-            viewModel.loadingListWeather(Location.LocationRus)
-        } catch (e: IllegalStateException) {
-            createAlertDialogError(e.message.toString())
         }
     }
 
@@ -101,43 +100,49 @@ class CityListFragment : Fragment() {
             .setIcon(R.drawable.ic_baseline_error_24)
             .setCancelable(false)
             .setPositiveButton("Повторить попытку"
-            ) { _, _ -> getDataWeatherLoading()}
+            ) { _, _ -> viewModel.loadingListWeather(Location.LocationRus)}
             .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
             .show()
     }
 
     // обработка данных о погоде (в том числе о состоянии загрузки данных), полученных от liveData
     private fun renderData(appState: AppState) {
-
         when (appState){
             AppState.Loading -> {
-                // включение видимости макета c progressBar
-                binding.loadingLayout.visibility = View.VISIBLE
+                binding.showLoading()
             }
             is AppState.Success -> {
-                val weatherList = appState.weatherList
-                // отключение видимости макета c progressBar
-                binding.loadingLayout.visibility = View.GONE
-                // включение видимости FAB
-                binding.cityFAB.visibility = View.VISIBLE
-
-                setCitiesList(weatherList)
+                binding.showFAB()
+                setCitiesList(appState.weatherList)
             }
-            is AppState.Error -> {
+            is AppState.Error -> {throw appState.error
             }
         }
+    }
+
+    // метод настраивает отображение при иммитации загрузки
+    private fun FragmentCityListBinding.showLoading() {
+        // отклюение видимости FAB
+        cityFAB.visibility = View.GONE
+        // включение видимости макета c progressBar
+        loadingLayout.visibility = View.VISIBLE
+    }
+
+    // метод настраивает отображение после иммитации загрузки
+    private fun FragmentCityListBinding.showFAB() {
+        // включение видимости FAB
+        cityFAB.visibility = View.VISIBLE
+        // отключение видимости макета c progressBar
+        loadingLayout.visibility = View.GONE
     }
 
     // отрисовка списка городов
     @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
     private fun setCitiesList(weatherList: List<Weather>) {
-        // создание переменной для RecyclerView
-        val citiesList:RecyclerView = binding.citiesList
         // передача в адаптер weatherList
         citiesListAdapter.setCitiesList(weatherList)
-        citiesListAdapter.notifyDataSetChanged()
         // подключение адаптера к RecyclerView
-        citiesList.adapter = citiesListAdapter
+        binding.citiesList.adapter = citiesListAdapter
     }
 
     override fun onDestroy() {
