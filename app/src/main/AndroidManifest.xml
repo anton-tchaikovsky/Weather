@@ -15,17 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Weather"
         tools:targetApi="31">
-        <activity
-            android:name=".view.BrowserActivity"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <data android:scheme="https"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-            </intent-filter>
-        </activity>
+
         <activity
             android:name=".view.WeatherActivity"
             android:exported="true">

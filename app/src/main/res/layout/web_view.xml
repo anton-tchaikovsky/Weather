@@ -25,10 +25,10 @@
             android:layout_weight="1"
             android:text="@android:string/ok" />
     </LinearLayout>
-    <!-- Контейнер для загружаемой страницы
+    <!-- Контейнер для загружаемой страницы -->
     <WebView
         android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-        -->
+
 </LinearLayout>
