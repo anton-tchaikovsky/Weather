@@ -6,16 +6,16 @@ import android.view.ViewGroup
 import android.widget.CheckedTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
-import com.example.weather.model.Weather
+import com.example.weather.model.City
 
 // в конструктор передаем объект CityListFragment.OnItemCityClickListener для обработки нажатия на элемент списка
 class CityListFragmentAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
 
-    private var dataWeatherList:List<Weather> = listOf()
+    private var dataCityList:List<City> = listOf()
 
     // метод для получения списка данных
-    fun setCitiesList(dataWeatherList:List<Weather>){
-        this.dataWeatherList = dataWeatherList
+    fun setCitiesList(dataCityList:List<City>){
+        this.dataCityList = dataCityList
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,18 +24,18 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.setCity(dataWeatherList[position])
+        holder.setCity(dataCityList[position])
     }
 
     override fun getItemCount(): Int {
-        return dataWeatherList.size
+        return dataCityList.size
     }
 
     // inner необходим для видимости переменных родительского класса
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        fun setCity (weather: Weather){
-            itemView.findViewById<CheckedTextView>(R.id.city_name).text = weather.city.cityName
-            itemView.setOnClickListener {itemCityClickListener?.onItemClick(weather)}
+        fun setCity (city: City){
+            itemView.findViewById<CheckedTextView>(R.id.city_name).text = city.cityName
+            itemView.setOnClickListener {itemCityClickListener?.onItemClick(city)}
         }
     }
 

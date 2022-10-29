@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
+import com.example.weather.model.City
 import com.example.weather.model.Location
-import com.example.weather.model.Weather
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -25,15 +25,15 @@ class CityListFragment : Fragment() {
 
     // функциональный интерфейс для обработки нажатия на элемент
     fun interface OnItemCityClickListener{
-        fun onItemClick(weather: Weather)
+        fun onItemClick(city: City)
     }
 
     // создаем адаптер CityListFragmentAdapter и передаем в конструктор объект OnItemCityClickListener,
     // при этом переопределяем метод onItemClick(Weather) (реализация через лямбду)
-    private val citiesListAdapter = CityListFragmentAdapter { weather ->
+    private val citiesListAdapter = CityListFragmentAdapter { city ->
         activity?.supportFragmentManager?.apply {
             beginTransaction()
-                .add(R.id.container, WeatherListFragment.newInstance(weather))
+                .add(R.id.container, WeatherListFragment.newInstance(city))
                 .addToBackStack("")
                 .commitAllowingStateLoss()}
     }
@@ -69,7 +69,7 @@ class CityListFragment : Fragment() {
             } catch (e:IllegalStateException){
                 //createAlertDialogError(e.message.toString())
                 binding.root.showSnackbar(e.message.toString(), R.string.return_loading){
-                    viewModel.getWeatherListIf(isRussian)
+                    viewModel.getCityListIf(isRussian)
                 }
             }
         }
@@ -78,7 +78,7 @@ class CityListFragment : Fragment() {
             //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе
             getLiveData().observe(viewLifecycleOwner, observer)
             //первичный запрос во WeatherListViewModel для получения информации о погоде
-            loadingListWeather(Location.LocationRus)
+            loadingCityList(Location.LocationRus)
         }
 
         // установка слушателя на FAB
@@ -86,7 +86,7 @@ class CityListFragment : Fragment() {
             isRussian = !isRussian
             isRussian.let { isRussian ->
                 (cityFAB as FloatingActionButton).setImageDrawableIf(isRussian)
-                viewModel.getWeatherListIf(isRussian)
+                viewModel.getCityListIf(isRussian)
             }
         }
     }
@@ -100,12 +100,12 @@ class CityListFragment : Fragment() {
             setImageDrawable(resources.getDrawable(R.drawable.world, activity?.theme))
     }
 
-    // метод запрашивает данные о погоде WeatherList в зависимости от условия isRussian
-    private fun WeatherListViewModel.getWeatherListIf (isRussian: Boolean){
+    // метод запрашивает список городов в зависимости от условия isRussian
+    private fun WeatherListViewModel.getCityListIf (isRussian: Boolean){
         if (isRussian)
-            getWeatherList(Location.LocationRus)
+            getCityList(Location.LocationRus)
         else
-            getWeatherList(Location.LocationWorld)
+            getCityList(Location.LocationWorld)
     }
 
     // создание диалогового окна на случай отсутствия подключения к источнику данных
@@ -115,7 +115,7 @@ class CityListFragment : Fragment() {
             .setIcon(R.drawable.ic_baseline_error_24)
             .setCancelable(false)
             .setPositiveButton(getString(R.string.return_loading)
-            ) { _, _ -> viewModel.loadingListWeather(Location.LocationRus)}
+            ) { _, _ -> viewModel.loadingCityList(Location.LocationRus)}
             .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
             .show()
     }
@@ -133,7 +133,7 @@ class CityListFragment : Fragment() {
             }
             is AppState.Success -> {
                 binding.showFAB()
-                setCitiesList(appState.weatherList)
+                setCitiesList(appState.cityList)
             }
             is AppState.Error -> {throw appState.error
             }
@@ -158,9 +158,9 @@ class CityListFragment : Fragment() {
 
     // отрисовка списка городов
     @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
-    private fun setCitiesList(weatherList: List<Weather>) {
-        // передача в адаптер weatherList
-        citiesListAdapter.setCitiesList(weatherList)
+    private fun setCitiesList(cityList: List<City>) {
+        // передача в адаптер cityList
+        citiesListAdapter.setCitiesList(cityList)
         // подключение адаптера к RecyclerView
         binding.citiesList.adapter = citiesListAdapter
     }

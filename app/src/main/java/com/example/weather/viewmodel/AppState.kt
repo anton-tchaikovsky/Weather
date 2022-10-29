@@ -1,9 +1,9 @@
 package com.example.weather.viewmodel
 
-import com.example.weather.model.Weather
+import com.example.weather.model.City
 
 sealed class AppState{
-    data class Success (val weatherList: List <Weather>): AppState()
+    data class Success (val cityList: List <City>): AppState()
     data class Error(val error: Throwable) : AppState()
     object Loading: AppState()
 }

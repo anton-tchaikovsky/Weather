@@ -7,3 +7,7 @@ fun interface RepositoryWeather {
 fun interface RepositoryListWeather {
     fun getWeatherList(location: Location): List<Weather>
 }
+
+fun interface RepositoryCityList {
+    fun getCityList(location: Location): List<City>
+}
