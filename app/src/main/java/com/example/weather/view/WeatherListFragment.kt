@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
-import com.example.weather.model.WeatherDTO
+import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.viewmodel.Seasons
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.example.weather.viewmodel.WeatherLoading
@@ -69,39 +69,28 @@ class WeatherListFragment : Fragment() {
             city = it
         }
         // создаем объект для запроса погоды в городе и запрашиваем погоду
-        WeatherLoading(city.lat, city.lon, object : WeatherLoading.WeatherLoaderListener {
-            override fun onLoaded(weatherDTO: WeatherDTO) {
-                setWeather(city, weatherDTO)
-            }
-            override fun onFailed(throwable: Throwable) {
-                Toast.makeText(requireContext(), throwable.message.toString(), Toast.LENGTH_LONG).show()
-            }
-        }).loadWeather()
-
-
+        WeatherLoading(city.lat, city.lon).loadWeather(::onLoaded, ::onFailed)
     }
 
     // отрисовка данных о погоде в конкретном городе
-    private fun setWeather(city: City, weatherDTO: (WeatherDTO)) {
-        with(binding) {
-            // отрисовываем данные о конкретном городе
-            city.let {
-                cityName.text = it.cityName
-                cityCoordinates.text = String.format(
-                    getString(R.string.city_coordinates),
-                    it.lat,
-                    it.lon
-                )
+    private fun setWeatherForView(city: City, weatherDTO: (WeatherDTO)) {
+            with(binding) {
+                // отрисовываем данные о конкретном городе
+                city.let {
+                    cityName.text = it.cityName
+                    cityCoordinates.text = String.format(
+                        getString(R.string.city_coordinates),
+                        it.lat,
+                        it.lon
+                    )
+                }
+                // отрисовываем данные о погоде в городе
+                weatherDTO.fact.let {
+                    temperatureValue.text = it.temp.toString()
+                    feelsLikeValue.text = it.feels_like.toString()
+                    weatherCondition.text = it.condition
+                }
             }
-            // отрисовываем данные о погоде в городе
-            weatherDTO.fact?.let {
-                temperatureValue.text = it.temp.toString()
-                feelsLikeValue.text = it.feels_like.toString()
-                weatherCondition.text = it.condition.toString()
-            }
-
-        }
-
     }
 
     // метод устанавливает фон root макета WeatherListFragment на основе данных полученных от liveDataBackground
@@ -117,6 +106,17 @@ class WeatherListFragment : Fragment() {
     // метод устанавливает фон для root по id рисунка
     private fun WeatherFragmentMainBinding.setBackgroundDrawable(id: Int) {
         root.background = AppCompatResources.getDrawable(requireContext(), id)
+    }
+
+    private fun onLoaded(weatherDTO: WeatherDTO) {
+        requireActivity().runOnUiThread {
+            setWeatherForView(city, weatherDTO)
+        }
+}
+    private fun onFailed(throwable: Throwable) {
+        requireActivity().runOnUiThread {
+            Toast.makeText(requireContext(), throwable.message.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onDestroyView() {
