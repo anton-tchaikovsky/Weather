@@ -73,7 +73,6 @@ class CityListFragment : Fragment() {
             try {
                 renderData(it)
             } catch (e:IllegalStateException){
-                //createAlertDialogError(e.message.toString())
                 binding.root.showSnackbar(e.message.toString(), R.string.return_loading){
                     viewModel.getCityListIf(isRussian)
                 }

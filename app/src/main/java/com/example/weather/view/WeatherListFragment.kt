@@ -15,6 +15,7 @@ import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
 import com.example.weather.model.dto.WeatherDTO
+import com.example.weather.utils.translateConditionInRussian
 import com.example.weather.viewmodel.Seasons
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.example.weather.viewmodel.WeatherLoading
@@ -89,8 +90,11 @@ class WeatherListFragment : Fragment() {
                 weatherDTO.fact.let {
                     temperatureValue.text = it.temp.toString()
                     feelsLikeValue.text = it.feels_like.toString()
-                    weatherCondition.text = it.condition
+                    weatherCondition.text = translateConditionInRussian(it.condition)
                 }
+                // видимость label
+                temperatureLabel.visibility = View.VISIBLE
+                feelsLikeLabel.visibility = View.VISIBLE
             }
     }
 
