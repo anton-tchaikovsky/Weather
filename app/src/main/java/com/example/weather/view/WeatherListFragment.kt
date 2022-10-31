@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +18,7 @@ import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.viewmodel.Seasons
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.example.weather.viewmodel.WeatherLoading
+import java.net.UnknownHostException
 
 class WeatherListFragment : Fragment() {
 
@@ -108,22 +109,50 @@ class WeatherListFragment : Fragment() {
         root.background = AppCompatResources.getDrawable(requireContext(), id)
     }
 
+    // создание диалогового окна на случай отсутствия подключения к интернету
+    private fun createAlertDialogForNoNetworkConnection() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Нет подключения к сети")
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage("Подключитесь к сети и повторите запрос")
+            .setCancelable(false)
+            .setPositiveButton(android.R.string.ok)
+             { _, _ -> requireActivity().supportFragmentManager.popBackStack()}
+            .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
+            .show()
+    }
+
+    // создание диалогового окна на случай ошибок получения данных из интернета, требующих внесения программных изменений в запрос
+    private fun createAlertDialogForNoOtherErrors() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Ошибка доступа к данным погоды")
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage("Приложение будет закрыто")
+            .setCancelable(false)
+            .setPositiveButton(android.R.string.ok)
+            { _, _ -> activity?.finish() }
+            .show()
+    }
+
     private fun onLoaded(weatherDTO: WeatherDTO) {
         requireActivity().runOnUiThread {
             setWeatherForView(city, weatherDTO)
         }
 }
-    private fun onFailed(throwable: Throwable) {
-        requireActivity().runOnUiThread {
-            Toast.makeText(requireContext(), throwable.message.toString(), Toast.LENGTH_LONG).show()
-        }
+
+   private fun onFailed(throwable: Throwable) {
+       requireActivity().runOnUiThread{
+           if(throwable is UnknownHostException)
+               createAlertDialogForNoNetworkConnection()
+           else
+               createAlertDialogForNoOtherErrors()
+       }
     }
 
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
     }
-
 }
 
 

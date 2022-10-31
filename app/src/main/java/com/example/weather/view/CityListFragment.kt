@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
 import com.example.weather.model.City
@@ -59,6 +59,12 @@ class CityListFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // подключение адаптера к RecyclerView
+        binding.citiesList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = citiesListAdapter
+        }
+
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
         viewModel = ViewModelProvider(this@CityListFragment)[WeatherListViewModel::class.java]
 
@@ -108,18 +114,6 @@ class CityListFragment : Fragment() {
             getCityList(Location.LocationWorld)
     }
 
-    // создание диалогового окна на случай отсутствия подключения к источнику данных
-    private fun createAlertDialogError(title: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(title)
-            .setIcon(R.drawable.ic_baseline_error_24)
-            .setCancelable(false)
-            .setPositiveButton(getString(R.string.return_loading)
-            ) { _, _ -> viewModel.loadingCityList(Location.LocationRus)}
-            .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
-            .show()
-    }
-
     // создание Snackbar на случай отсутствия подключения к источнику данных
     private fun View.showSnackbar (message: String, actionTextId: Int, duration:Int = Snackbar.LENGTH_INDEFINITE, action: (View) -> Unit) {
         Snackbar.make(this, message, duration ).setAction(getString(actionTextId),action ).show()
@@ -157,12 +151,11 @@ class CityListFragment : Fragment() {
     }
 
     // отрисовка списка городов
-    @SuppressLint("NotifyDataSetChanged", "UseCompatLoadingForDrawables")
+    @SuppressLint("NotifyDataSetChanged")
     private fun setCitiesList(cityList: List<City>) {
-        // передача в адаптер cityList
+        // передача в адаптер cityList и обновление
         citiesListAdapter.setCitiesList(cityList)
-        // подключение адаптера к RecyclerView
-        binding.citiesList.adapter = citiesListAdapter
+        citiesListAdapter.notifyDataSetChanged()
     }
 
     override fun onDestroy() {
