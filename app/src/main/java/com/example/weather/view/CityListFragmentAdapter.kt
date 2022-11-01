@@ -1,16 +1,17 @@
 package com.example.weather.view
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckedTextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.R
+import com.example.weather.databinding.CityItemBinding
 import com.example.weather.model.City
 
 // в конструктор передаем объект CityListFragment.OnItemCityClickListener для обработки нажатия на элемент списка
 class CityListFragmentAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
 
+    private var _binding: CityItemBinding? = null
+    private val binding
+        get() = _binding!!
     private var dataCityList:List<City> = listOf()
 
     // метод для получения списка данных
@@ -19,8 +20,8 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        return ViewHolder(inflater.inflate(R.layout.city_item, parent, false))
+        _binding = CityItemBinding.inflate(LayoutInflater.from(parent.context))
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,15 +33,18 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
     }
 
     // inner необходим для видимости переменных родительского класса
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    inner class ViewHolder(binding: CityItemBinding) : RecyclerView.ViewHolder(binding.root){
         fun setCity (city: City){
-            itemView.findViewById<CheckedTextView>(R.id.city_name).text = city.cityName
-            itemView.setOnClickListener {itemCityClickListener?.onItemClick(city)}
+            binding.run{
+                cityName.text = city.cityName
+                root.setOnClickListener {itemCityClickListener?.onItemClick(city)}
+            }
         }
     }
 
     fun removeListener(){
         itemCityClickListener=null
+        _binding = null
     }
 
 }

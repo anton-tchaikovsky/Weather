@@ -24,5 +24,4 @@ class ThemeViewModel: ViewModel() {
             in (8..10) -> repositoryThemes.getTheme("autumn")
             else -> repositoryThemes.getTheme("weather")
         }
-
 }
