@@ -33,6 +33,7 @@ class CityListFragment : Fragment() {
     private val citiesListAdapter = CityListFragmentAdapter { city ->
         activity?.supportFragmentManager?.apply {
             beginTransaction()
+                .hide(this@CityListFragment) // скрываем текущий фрагмент(при popBackStake вернется)
                 .add(R.id.container, WeatherListFragment.newInstance(city))
                 .addToBackStack("")
                 .commitAllowingStateLoss()}

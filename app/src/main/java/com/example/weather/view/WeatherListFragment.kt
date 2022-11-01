@@ -8,16 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
 import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.utils.translateConditionInRussian
-import com.example.weather.viewmodel.Seasons
-import com.example.weather.viewmodel.WeatherListViewModel
 import com.example.weather.viewmodel.WeatherLoading
 import java.net.UnknownHostException
 
@@ -54,17 +50,6 @@ class WeatherListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // получение и настройка WeatherListViewModel, не на прямую, а через ViewModelProvider
-        ViewModelProvider(this@WeatherListFragment)[WeatherListViewModel::class.java].also { WeatherListViewModel ->
-            // передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе (через лямбду)
-            WeatherListViewModel.getLiveDataBackground().observe(viewLifecycleOwner) {
-                //метод, который реализует наблюдатель при получении данных от LiveDataBackground
-                renderBackground(it)
-            }
-        }.run {
-            // запрос во WeatherListViewModel для подучения информации, необходимой для установки фона root макета WeatherListFragment
-            getBackground()
-        }
 
         // получаем конкретный город (с проверкой на null)
         arguments?.getParcelable<City>(BUNDLE_EXTRA)?.let {
@@ -96,21 +81,6 @@ class WeatherListFragment : Fragment() {
                 temperatureLabel.visibility = View.VISIBLE
                 feelsLikeLabel.visibility = View.VISIBLE
             }
-    }
-
-    // метод устанавливает фон root макета WeatherListFragment на основе данных полученных от liveDataBackground
-    private fun renderBackground(season: Seasons) {
-        when (season){
-            Seasons.Summer ->  binding.setBackgroundDrawable(R.drawable.summer)
-            Seasons.Autumn ->  binding.setBackgroundDrawable(R.drawable.autumn)
-            Seasons.Spring -> binding.setBackgroundDrawable(R.drawable.spring)
-            Seasons.Winter -> binding.setBackgroundDrawable(R.drawable.winter)
-        }
-    }
-
-    // метод устанавливает фон для root по id рисунка
-    private fun WeatherFragmentMainBinding.setBackgroundDrawable(id: Int) {
-        root.background = AppCompatResources.getDrawable(requireContext(), id)
     }
 
     // создание диалогового окна на случай отсутствия подключения к интернету

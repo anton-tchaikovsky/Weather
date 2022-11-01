@@ -1,8 +1,5 @@
 package com.example.weather.viewmodel
 
-import android.icu.util.Calendar
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weather.model.Location
@@ -14,19 +11,13 @@ class WeatherListViewModel(
 
     // создание liveData для данных о погоде
     private val liveData: MutableLiveData<AppState> =
-        MutableLiveData(),
-    // создание liveDataBackground для данных о фоне
-    private val liveDataBackground: MutableLiveData<Seasons> = MutableLiveData()
-) : ViewModel() {
+        MutableLiveData()) : ViewModel() {
 
     // создание переменной для репозитория, предоставляющего данные о погоде
     private lateinit var repositoryImpl: RepositoryCityList
 
     // метод для получения liveData
     fun getLiveData() = liveData
-
-    // метод для получения liveDataBackground
-    fun getLiveDataBackground() = liveDataBackground
 
     // метод создает ссылку на репозиторий в зависимотсти от того, есть ли удаленная связь
     private fun getSelectionSource(isConnect: Boolean) {
@@ -67,15 +58,4 @@ class WeatherListViewModel(
     // метод эммулирует, успешно ли произошла загрузка данных о погоде
     private fun isSuccess() = (0..2).random()!=1
 
-    // метод обеспечивает формирование данных о сезоне и их рассылку с помощью liveDataBackground
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun getBackground(){
-        when( Calendar.getInstance().get(Calendar.MONTH)){
-            in (0..1)  -> liveDataBackground.value = Seasons.Winter
-            11 -> liveDataBackground.value = Seasons.Winter
-            in (2..4) -> liveDataBackground.value = Seasons.Spring
-            in (5..7) -> liveDataBackground.value = Seasons.Summer
-            in (8..10) -> liveDataBackground.value = Seasons.Autumn
-        }
-    }
 }
