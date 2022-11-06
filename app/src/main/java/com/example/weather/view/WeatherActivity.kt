@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.databinding.WeatherActivityBinding
+import com.example.weather.service.ThreadFragment
 import com.example.weather.viewmodel.ThemeViewModel
 
 class WeatherActivity : AppCompatActivity() {

@@ -1,5 +1,6 @@
-package com.example.weather.view
+package com.example.weather.service
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -84,6 +85,13 @@ class ThreadFragment : Fragment() {
                     })
                 }
             }
+        }
+
+        // запускаем сервис через интент
+        binding.serviceButton.setOnClickListener{
+            val intent = Intent(context, Service::class.java)
+            intent.putExtra(MAIN_SERVICE_STRING_EXTRA, "Привет из ThreadFragment")
+            context?.startService(intent)
         }
 
     }

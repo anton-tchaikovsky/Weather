@@ -54,6 +54,13 @@
             android:layout_marginTop="5dp"
             android:text="handler_thread"
             android:textSize="@dimen/feels_like_text_size" />
+        <Button
+            android:id="@+id/serviceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="service"
+        android:textSize="@dimen/feels_like_text_size" />
 
     </LinearLayout>
 </ScrollView>
