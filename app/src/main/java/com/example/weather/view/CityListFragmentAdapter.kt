@@ -9,9 +9,6 @@ import com.example.weather.model.City
 // в конструктор передаем объект CityListFragment.OnItemCityClickListener для обработки нажатия на элемент списка
 class CityListFragmentAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
 
-    private var _binding: CityItemBinding? = null
-    private val binding
-        get() = _binding!!
     private var dataCityList:List<City> = listOf()
 
     // метод для получения списка данных
@@ -19,10 +16,9 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
         this.dataCityList = dataCityList
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        _binding = CityItemBinding.inflate(LayoutInflater.from(parent.context))
-        return ViewHolder(binding)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        ViewHolder(CityItemBinding.inflate(LayoutInflater.from(parent.context)))
+
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.setCity(dataCityList[position])
@@ -33,7 +29,7 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
     }
 
     // inner необходим для видимости переменных родительского класса
-    inner class ViewHolder(binding: CityItemBinding) : RecyclerView.ViewHolder(binding.root){
+    inner class ViewHolder(private val binding: CityItemBinding) : RecyclerView.ViewHolder(binding.root){
         fun setCity (city: City){
             binding.run{
                 cityName.text = city.cityName
@@ -44,7 +40,6 @@ class CityListFragmentAdapter (private var itemCityClickListener: CityListFragme
 
     fun removeListener(){
         itemCityClickListener=null
-        _binding = null
     }
 
 }
