@@ -27,6 +27,13 @@
         </activity>
 
         <service android:name=".service.Service"/>
+
+        <receiver android:name=".service.MyBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

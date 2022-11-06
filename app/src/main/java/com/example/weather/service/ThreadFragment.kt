@@ -1,6 +1,9 @@
 package com.example.weather.service
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -9,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.weather.R
 import com.example.weather.databinding.FragmentThreadBinding
 import kotlinx.android.synthetic.main.fragment_thread.*
@@ -17,10 +21,32 @@ import java.util.concurrent.TimeUnit
 
 class ThreadFragment : Fragment() {
 
+   // создаем приемник сообщений (action определяется при его регистрации)
+    private val broadcastReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context, intent: Intent?) {
+            intent?.getStringExtra("THREADS_FRAGMENT_BROADCAST_EXTRA")?.let {
+                binding.mainContainer.addView(AppCompatTextView(context).apply {
+                    text = it
+                    textSize = resources.getDimension(R.dimen.city_item_text_size)
+                })
+            }
+        }
+
+    }
+
     private var _binding: FragmentThreadBinding? = null
     private val binding get() = _binding!!
 
     private var counterThread = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // зарегестрировали приемник сообщений
+        //context?.registerReceiver(broadcastReceiver, IntentFilter("TEST BROADCAST INTENT FILTER"))
+        // для внутренних сообщений
+        context?.let {  LocalBroadcastManager.getInstance(it)
+            .registerReceiver(broadcastReceiver, IntentFilter("TEST BROADCAST INTENT FILTER"))}
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -94,6 +120,12 @@ class ThreadFragment : Fragment() {
             context?.startService(intent)
         }
 
+        binding.serviceWithBroadcastButton.setOnClickListener {
+            val intent = Intent(context, Service::class.java)
+            intent.putExtra("MAIN_SERVICE_INT_EXTRA", binding.editText.text.toString().toInt())
+            context?.startService(intent)
+        }
+
     }
 
     private fun startCalculations(seconds: Int): String {
@@ -107,6 +139,12 @@ class ThreadFragment : Fragment() {
         return diffInSec.toString()
     }
 
+    override fun onDestroy() {
+        //context?.unregisterReceiver(broadcastReceiver)
+        context?.let {  LocalBroadcastManager.getInstance(it)
+            .unregisterReceiver(broadcastReceiver)}
+        super.onDestroy()
+    }
     companion object {
         fun newInstance() =
             ThreadFragment()

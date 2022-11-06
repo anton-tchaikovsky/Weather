@@ -1,5 +1,7 @@
 package com.example.weather.view
 
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -9,10 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.databinding.WeatherActivityBinding
+import com.example.weather.service.MyBroadcastReceiver
 import com.example.weather.service.ThreadFragment
 import com.example.weather.viewmodel.ThemeViewModel
 
 class WeatherActivity : AppCompatActivity() {
+
+    private val broadcastReceiver = MyBroadcastReceiver()
 
     private var _binding:WeatherActivityBinding? = null
     private val binding get() = _binding!!
@@ -36,6 +41,8 @@ class WeatherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        registerReceiver(broadcastReceiver, IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED))
+
         _binding = WeatherActivityBinding.inflate(layoutInflater)
 
         //получаем данные из ThemeViewModel и выставляем соответствующую тему
@@ -50,6 +57,11 @@ class WeatherActivity : AppCompatActivity() {
                 .replace(binding.container.id, CityListFragment.newInstance())
                 .commitNow()
         }
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(broadcastReceiver)
+        super.onDestroy()
     }
 
 }
