@@ -1,5 +1,9 @@
 package com.example.weather.model.dto
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Fact(
     val condition: String,
     val temp: Double,
@@ -15,4 +19,4 @@ data class Fact(
     val wind_dir: String,
     val wind_gust: Double,
     val wind_speed: Double
-)
+):Parcelable

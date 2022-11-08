@@ -26,14 +26,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.Service"/>
+        <service android:name=".service.WeatherService"/>
 
-        <receiver android:name=".service.MyBroadcastReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.LOCALE_CHANGED"/>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

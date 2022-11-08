@@ -2,6 +2,7 @@ package com.example.weather.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.weather.model.City
 import java.io.BufferedReader
 import java.util.stream.Collectors
 
@@ -11,6 +12,8 @@ fun getLines(reader: BufferedReader): String {
 }
 
 fun translateConditionInRussian(conditionInEnglish:String) = conditionMap[conditionInEnglish]
+
+fun setURL(city:City) = "https://api.weather.yandex.ru/v2/informers?lat=${city.lat}&lon=${city.lon}&[lang=<ru_RU>]"
 
 val conditionMap = hashMapOf(
     "clear" to "ясно",

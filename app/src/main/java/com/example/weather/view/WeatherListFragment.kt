@@ -1,6 +1,10 @@
 package com.example.weather.view
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,12 +13,13 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
 import com.example.weather.model.dto.WeatherDTO
-import com.example.weather.utils.translateConditionInRussian
-import com.example.weather.viewmodel.WeatherLoading
+import com.example.weather.service.WeatherService
+import com.example.weather.utils.*
 import java.net.UnknownHostException
 
 class WeatherListFragment : Fragment() {
@@ -33,9 +38,29 @@ class WeatherListFragment : Fragment() {
     // создание переменной для города
     private lateinit var city: City
 
+    // создание broadcast-ресивера для приема и обработки данных из сервиса
+    private val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.getStringExtra(RESULT_LOADING)) {
+                SUCCESS_LOADING -> intent.getParcelableExtra<WeatherDTO>(WEATHER_DTO)
+                    ?.let { setWeatherForView(city, it) }
+                ERROR_LOADING -> onFailed(intent.getSerializableExtra(ERROR) as Throwable)
+            }
+        }
+    }
+
     // создание переменной binding, относящейся к классу соответствующего макета
     private var _binding: WeatherFragmentMainBinding? = null
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // регистрируем broadcastReceiver
+        context?.let {
+            LocalBroadcastManager.getInstance(it)
+                .registerReceiver(broadcastReceiver, IntentFilter(WEATHER_INTENT_ACTION))
+        }
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,8 +80,13 @@ class WeatherListFragment : Fragment() {
         arguments?.getParcelable<City>(BUNDLE_EXTRA)?.let {
             city = it
         }
-        // создаем объект для запроса погоды в городе и запрашиваем погоду
-        WeatherLoading(city.lat, city.lon).loadWeather(::onLoaded, ::onFailed)
+
+        // запускаем сервис для загрузки данных о погоде
+        context?.let {
+            it.startService(Intent(it, WeatherService::class.java).apply {
+                putExtra(CITY, city)
+            })
+        }
     }
 
     // отрисовка данных о погоде в конкретном городе
@@ -108,23 +138,21 @@ class WeatherListFragment : Fragment() {
             .show()
     }
 
-    private fun onLoaded(weatherDTO: WeatherDTO) {
-        requireActivity().runOnUiThread {
-            setWeatherForView(city, weatherDTO)
-        }
-}
+    // метод определяет источник ошибки и открывает соответствующее диалоговое окно
+    private fun onFailed(throwable: Throwable) {
+        if (throwable is UnknownHostException)
+            createAlertDialogForNoNetworkConnection()
+        else
+            createAlertDialogForNoOtherErrors()
 
-   private fun onFailed(throwable: Throwable) {
-       requireActivity().runOnUiThread{
-           if(throwable is UnknownHostException)
-               createAlertDialogForNoNetworkConnection()
-           else
-               createAlertDialogForNoOtherErrors()
-       }
     }
 
     override fun onDestroyView() {
         _binding = null
+        context?.let {
+            LocalBroadcastManager.getInstance(it)
+                .unregisterReceiver(broadcastReceiver)
+        }
         super.onDestroyView()
     }
 }
