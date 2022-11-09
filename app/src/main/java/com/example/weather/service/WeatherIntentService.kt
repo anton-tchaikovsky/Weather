@@ -19,7 +19,7 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 
-class WeatherService(name:String = "WeatherService"): IntentService(name) {
+class WeatherIntentService(name:String = "WeatherService"): IntentService(name) {
 
     private val broadcastIntent = Intent(WEATHER_INTENT_ACTION)
 

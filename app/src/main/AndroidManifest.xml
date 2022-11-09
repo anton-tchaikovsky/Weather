@@ -15,6 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Weather"
         tools:targetApi="31">
+        <service
+            android:name=".service.FibonacciService"
+            android:enabled="true"
+            android:exported="true"/>
 
         <activity
             android:name=".view.WeatherActivity"
@@ -26,8 +30,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.WeatherService"/>
-
+        <service android:name=".service.WeatherIntentService" />
     </application>
 
 </manifest>

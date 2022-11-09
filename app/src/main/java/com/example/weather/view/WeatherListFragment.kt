@@ -18,7 +18,7 @@ import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
 import com.example.weather.model.dto.WeatherDTO
-import com.example.weather.service.WeatherService
+import com.example.weather.service.WeatherIntentService
 import com.example.weather.utils.*
 import java.net.UnknownHostException
 
@@ -83,7 +83,7 @@ class WeatherListFragment : Fragment() {
 
         // запускаем сервис для загрузки данных о погоде
         context?.let {
-            it.startService(Intent(it, WeatherService::class.java).apply {
+            it.startService(Intent(it, WeatherIntentService::class.java).apply {
                 putExtra(CITY, city)
             })
         }
