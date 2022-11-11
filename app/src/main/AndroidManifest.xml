@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.weather">
+    package="com.example.weather" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -14,15 +15,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Weather"
-        tools:targetApi="31">
+        tools:targetApi="31" >
         <service
-            android:name=".service.FibonacciService"
+            android:name=".service.WeatherServiceWithBroadcast"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" >
+        </service>
 
         <activity
             android:name=".view.WeatherActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.WeatherIntentService" />
+        <service android:name=".service.WeatherIntentServiceWithBroadcast" />
     </application>
 
 </manifest>

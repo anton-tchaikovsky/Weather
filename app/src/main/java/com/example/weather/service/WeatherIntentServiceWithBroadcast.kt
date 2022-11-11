@@ -2,10 +2,13 @@
 
 package com.example.weather.service
 
+import android.R
 import android.app.IntentService
+import android.app.Notification
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.weather.BuildConfig
 import com.example.weather.model.City
@@ -19,7 +22,7 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 
-class WeatherIntentService(name:String = "WeatherService"): IntentService(name) {
+class WeatherIntentServiceWithBroadcast(name:String = "WeatherService"): IntentService(name) {
 
     private val broadcastIntent = Intent(WEATHER_INTENT_ACTION)
 
@@ -28,7 +31,11 @@ class WeatherIntentService(name:String = "WeatherService"): IntentService(name) 
     override fun onHandleIntent(intent: Intent?) {
         // получили конкретный город из intent
         intent?.getParcelableExtra<City>(CITY)?.let {
-            weatherLoading(it)
+            startForeground(123, makeNotification("Foreground Service"))
+           weatherLoading(it)
+           Thread.sleep(10000)
+           stopForeground(false)
+           stopSelf()
         }
     }
 
@@ -83,5 +90,13 @@ class WeatherIntentService(name:String = "WeatherService"): IntentService(name) 
                 putExtra(ERROR, e)
             })
     }
+
+    private fun makeNotification(message: String): Notification =
+        NotificationCompat.Builder(this, "2")
+        .setSmallIcon(R.drawable.sym_def_app_icon)
+        .setContentTitle("Main service notification")
+        .setContentText(message)
+        .build()
+
 
 }
