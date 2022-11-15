@@ -11,3 +11,6 @@ const val ERROR_LOADING = "ErrorLoading"
 const val RESULT_LOADING = "ResultLoading"
 const val REQUEST_METHOD_GET = "GET"
 const val CONNECT_TIMEOUT = 10000
+const val JOB_INFO_ID = 234135
+const val LATITUDE = "Latitude"
+const val LONGITUDE = "Longitude"
