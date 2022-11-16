@@ -26,10 +26,11 @@ class WeatherServiceWithBinder : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-   fun weatherLoading(city: City): LoadingState {
+    fun weatherLoading(city: City, block: (LoadingState) -> Unit) {
         try {
             // создали url для запроса погоды в конкретном городе
             val url = URL(setURL(city))
+            Thread{
                 // создали пустое соединение https
                 var urlConnection: HttpsURLConnection? = null
                 try {
@@ -46,18 +47,20 @@ class WeatherServiceWithBinder : Service() {
                     val result =
                         getLines(BufferedReader(InputStreamReader(urlConnection.inputStream)))
                     // преобразовываем считанные данные из JSON в Weather DTO и возвращаем их
-                   return LoadingState.Success(Gson().fromJson(
-                        result,
-                        WeatherDTO::class.java
-                    ))
+                    block (LoadingState.Success(
+                        Gson().fromJson(
+                            result,
+                            WeatherDTO::class.java
+                        )))
                 } catch (e: Exception) {
-                    return LoadingState.Error(e)
+                    block (LoadingState.Error(e))
                 } finally {
                     urlConnection?.disconnect()
-
                 }
+            }.start()
+
         } catch (e: MalformedURLException) {
-            return LoadingState.Error(e)
+            block (LoadingState.Error(e))
         }
     }
 

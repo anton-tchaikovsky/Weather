@@ -1,13 +1,11 @@
 package com.example.weather.view
 
 import android.annotation.SuppressLint
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
 import android.content.*
+import android.content.Context.BIND_AUTO_CREATE
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +18,6 @@ import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
 import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.service.LoadingState
-import com.example.weather.service.WeatherJobServiceWithBroadcast
 import com.example.weather.service.WeatherServiceWithBinder
 import com.example.weather.utils.*
 import java.net.UnknownHostException
@@ -73,14 +70,19 @@ class WeatherListFragment : Fragment() {
                 val binderWeather = service as (WeatherServiceWithBinder.BinderWeather?)
                 binderWeather?.run{
                     isBound = true
-                    Thread{
-                        getWeatherServiceWithBinder().weatherLoading(city).let{ loadingState ->
-                            activity?.runOnUiThread { when (loadingState){
-                                is LoadingState.Success -> loadingState.weatherDTO?.let { setWeatherForView(city, it) }
-                                is LoadingState.Error -> loadingState.error?.let {onFailed(it)}
-                            } }
+                    getWeatherServiceWithBinder().weatherLoading(city) { loadingState ->
+                        activity?.runOnUiThread {
+                            when (loadingState) {
+                                is LoadingState.Success -> loadingState.weatherDTO?.let {
+                                    setWeatherForView(
+                                        city,
+                                        it
+                                    )
+                                }
+                                is LoadingState.Error -> loadingState.error?.let { onFailed(it) }
+                            }
                         }
-                    }.start()
+                    }
                 }
             }
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -125,12 +127,16 @@ class WeatherListFragment : Fragment() {
         }*/
 
         // запускаем сервис-bind для загрузки данных о погоде и обрабатываем полученные данные
-        /* context?.let{
-             it.bindService(Intent(it, WeatherServiceWithBinder::class.java), serviceConnection, BIND_AUTO_CREATE)
-         }*/
+        context?.let {
+            it.bindService(
+                Intent(it, WeatherServiceWithBinder::class.java),
+                serviceConnection,
+                BIND_AUTO_CREATE
+            )
+        }
 
         // запускаем сервис-job для загрузки данных о погоде
-        val jobInfo = JobInfo.Builder(
+        /*val jobInfo = JobInfo.Builder(
             JOB_INFO_ID,
             ComponentName(requireContext(), WeatherJobServiceWithBroadcast::class.java)
         )
@@ -142,7 +148,7 @@ class WeatherListFragment : Fragment() {
             .setOverrideDeadline(100000)
             .build()
         val jobScheduler = requireContext().getSystemService(JobScheduler::class.java)
-        jobScheduler.schedule(jobInfo)
+        jobScheduler.schedule(jobInfo)*/
 
     }
 
