@@ -14,3 +14,4 @@ const val CONNECT_TIMEOUT = 10000
 const val JOB_INFO_ID = 234135
 const val LATITUDE = "Latitude"
 const val LONGITUDE = "Longitude"
+const val DISCONNECT = ""

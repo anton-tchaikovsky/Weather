@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weather.databinding.WeatherActivityBinding
 import com.example.weather.viewmodel.ThemeViewModel
 
+
 class WeatherActivity : AppCompatActivity() {
 
     private var _binding:WeatherActivityBinding? = null
@@ -26,7 +27,7 @@ class WeatherActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // создание и запуск CityListFragment
-       if (savedInstanceState == null) {
+     if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(binding.container.id, CityListFragment.newInstance())
                 .commitNow()

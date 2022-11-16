@@ -179,7 +179,7 @@ class WeatherListFragment : Fragment() {
     // создание диалогового окна на случай отсутствия подключения к интернету
     private fun createAlertDialogForNoNetworkConnection() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Нет подключения к сети")
+            .setTitle("Отсутствует подключение к сети")
             .setIcon(R.drawable.ic_baseline_error_24)
             .setMessage("Подключитесь к сети и повторите запрос")
             .setCancelable(false)
@@ -203,11 +203,10 @@ class WeatherListFragment : Fragment() {
 
     // метод определяет источник ошибки и открывает соответствующее диалоговое окно
     private fun onFailed(throwable: Throwable) {
-        if (throwable is UnknownHostException)
+        if ((throwable is UnknownHostException) && !isConnect(context))
             createAlertDialogForNoNetworkConnection()
         else
             createAlertDialogForNoOtherErrors()
-
     }
 
     override fun onStop() {
