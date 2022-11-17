@@ -179,22 +179,22 @@ class WeatherListFragment : Fragment() {
     // создание диалогового окна на случай отсутствия подключения к интернету
     private fun createAlertDialogForNoNetworkConnection() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Отсутствует подключение к сети")
+            .setTitle(MESSAGE_DISCONNECT)
             .setIcon(R.drawable.ic_baseline_error_24)
-            .setMessage("Подключитесь к сети и повторите запрос")
+            .setMessage(MESSAGE_MAKE_CONNECT)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok)
              { _, _ -> requireActivity().supportFragmentManager.popBackStack()}
-            .setNegativeButton("Выйти из приложения") {_, _ -> activity?.finish() }
+            .setNegativeButton(EXIT_APP) { _, _ -> activity?.finish() }
             .show()
     }
 
     // создание диалогового окна на случай ошибок получения данных из интернета, требующих внесения программных изменений в запрос
     private fun createAlertDialogForNoOtherErrors() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка доступа к данным погоды")
+            .setTitle(MESSAGE_ERROR)
             .setIcon(R.drawable.ic_baseline_error_24)
-            .setMessage("Приложение будет закрыто")
+            .setMessage(MESSAGE_APP_CLOSE)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok)
             { _, _ -> activity?.finish() }

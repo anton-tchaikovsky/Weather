@@ -15,7 +15,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
 import com.example.weather.model.City
 import com.example.weather.model.Location
-import com.example.weather.model.broadcastReceiver.ConnectivityBroadcastReceiver
+import com.example.weather.broadcastReceiver.ConnectivityBroadcastReceiver
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton

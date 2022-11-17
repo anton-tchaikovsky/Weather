@@ -17,17 +17,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Weather"
         tools:targetApi="31">
-        <service
-            android:name=".service.WeatherServiceWithBinder"
-            />
+
+        <receiver
+            android:name=".broadcastReceiver.BroadcastReceiverForStartApp"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.weather.broadcastReceiver.broadcastReceiverForStartApp" />
+            </intent-filter>
+
+        </receiver>
+
+        <service android:name=".service.WeatherServiceWithBinder" />
         <service
             android:name=".service.WeatherServiceWithBroadcast"
             android:enabled="true"
-            android:exported="true"/>
-        <service android:name=".service.WeatherJobServiceWithBroadcast"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"/>
-
+            android:exported="true" />
+        <service
+            android:name=".service.WeatherJobServiceWithBroadcast"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
             android:name=".view.WeatherActivity"
@@ -40,7 +49,6 @@
         </activity>
 
         <service android:name=".service.WeatherIntentServiceWithBroadcast" />
-
     </application>
 
 </manifest>
