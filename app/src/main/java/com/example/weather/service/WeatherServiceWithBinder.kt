@@ -44,14 +44,10 @@ class WeatherServiceWithBinder : Service() {
                         connectTimeout = CONNECT_TIMEOUT
                     }
                     // читаем данные и переводим данные в виде String
-                    val result =
-                        getLines(BufferedReader(InputStreamReader(urlConnection.inputStream)))
-                    // преобразовываем считанные данные из JSON в Weather DTO и возвращаем их
-                    block (LoadingState.Success(
-                        Gson().fromJson(
-                            result,
-                            WeatherDTO::class.java
-                        )))
+                    val result = getLines(BufferedReader(InputStreamReader(urlConnection.inputStream)))
+                    // преобразовываем считанные данные из JSON в Weather DTO и работаем с ними через функцию block
+                    val weatherDTO =  Gson().fromJson(result,WeatherDTO::class.java)
+                    block (LoadingState.Success(requireNotNull(weatherDTO)))
                 } catch (e: Exception) {
                     block (LoadingState.Error(e))
                 } finally {

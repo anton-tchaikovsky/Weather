@@ -1,8 +1,6 @@
 package com.example.weather.view
 
 import android.annotation.SuppressLint
-import android.content.IntentFilter
-import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +13,6 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
 import com.example.weather.model.City
 import com.example.weather.model.Location
-import com.example.weather.broadcastReceiver.ConnectivityBroadcastReceiver
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.WeatherListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -25,9 +22,6 @@ class CityListFragment : Fragment() {
 
     private var _binding: FragmentCityListBinding?=null
     private val binding get() = _binding!!
-
-    // создание broadcast-ресивера для приема и обработки данных о изменении подключения к сети
-    private val connectivityBroadcastReceiver = ConnectivityBroadcastReceiver()
 
     // функциональный интерфейс для обработки нажатия на элемент
     fun interface OnItemCityClickListener{
@@ -60,12 +54,6 @@ class CityListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCityListBinding.inflate(inflater, container,false)
-
-        // регистрируем connectivityBroadcastReceiver
-        context?.let {
-            @Suppress("DEPRECATION")
-            context?.registerReceiver(connectivityBroadcastReceiver, IntentFilter(CONNECTIVITY_ACTION))
-        }
         return binding.root
     }
 
@@ -173,7 +161,6 @@ class CityListFragment : Fragment() {
     override fun onDestroyView() {
         _binding=null
         citiesListAdapter.removeListener()
-        context?.unregisterReceiver(connectivityBroadcastReceiver)
         super.onDestroyView()
     }
 

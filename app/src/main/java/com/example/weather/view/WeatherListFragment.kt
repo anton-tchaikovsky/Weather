@@ -1,8 +1,10 @@
 package com.example.weather.view
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.ComponentName
 import android.content.Context.BIND_AUTO_CREATE
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -12,7 +14,6 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
@@ -38,17 +39,6 @@ class WeatherListFragment : Fragment() {
     // создание переменной для города
     private lateinit var city: City
 
-    // создание broadcast-ресивера для приема и обработки данных из сервиса
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.getStringExtra(RESULT_LOADING)) {
-                SUCCESS_LOADING -> intent.getParcelableExtra<WeatherDTO>(WEATHER_DTO)
-                    ?.let { setWeatherForView(city, it) }
-                ERROR_LOADING -> onFailed(intent.getSerializableExtra(ERROR) as Throwable)
-            }
-        }
-    }
-
     private var isBound = false
     private lateinit var serviceConnection:ServiceConnection
 
@@ -57,11 +47,6 @@ class WeatherListFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // регистрируем broadcastReceiver
-        context?.let {
-            LocalBroadcastManager.getInstance(it)
-                .registerReceiver(broadcastReceiver, IntentFilter(WEATHER_INTENT_ACTION))
-        }
 
         serviceConnection = object :ServiceConnection{
             var binderWeather:WeatherServiceWithBinder.BinderWeather? = null
@@ -74,10 +59,7 @@ class WeatherListFragment : Fragment() {
                         activity?.runOnUiThread {
                             when (loadingState) {
                                 is LoadingState.Success -> loadingState.weatherDTO?.let {
-                                    setWeatherForView(
-                                        city,
-                                        it
-                                    )
+                                    setWeatherForView(city, it)
                                 }
                                 is LoadingState.Error -> loadingState.error?.let { onFailed(it) }
                             }
@@ -112,20 +94,6 @@ class WeatherListFragment : Fragment() {
             city = it
         }
 
-        // запускаем сервис-intent для загрузки данных о погоде
-        /*context?.let {
-            it.startService(Intent(it, WeatherIntentServiceWithBroadcast::class.java).apply {
-                putExtra(CITY, city)
-            })
-        }*/
-
-        // запускаем сервис для загрузки данных о погоде
-        /*context?.let {
-            it.startService(Intent(it, WeatherServiceWithBroadcast::class.java).apply {
-                putExtra(CITY, city)
-            })
-        }*/
-
         // запускаем сервис-bind для загрузки данных о погоде и обрабатываем полученные данные
         context?.let {
             it.bindService(
@@ -134,37 +102,23 @@ class WeatherListFragment : Fragment() {
                 BIND_AUTO_CREATE
             )
         }
-
-        // запускаем сервис-job для загрузки данных о погоде
-        /*val jobInfo = JobInfo.Builder(
-            JOB_INFO_ID,
-            ComponentName(requireContext(), WeatherJobServiceWithBroadcast::class.java)
-        )
-            .setExtras(PersistableBundle().apply {
-                putDouble(LATITUDE, city.lat)
-                putDouble(LONGITUDE, city.lon)
-            })
-            .setMinimumLatency(1000)
-            .setOverrideDeadline(100000)
-            .build()
-        val jobScheduler = requireContext().getSystemService(JobScheduler::class.java)
-        jobScheduler.schedule(jobInfo)*/
-
     }
 
     // отрисовка данных о погоде в конкретном городе
     private fun setWeatherForView(city: City, weatherDTO: (WeatherDTO)) {
-            with(binding) {
-                // отрисовываем данные о конкретном городе
-                city.let {
-                    cityName.text = it.cityName
-                    cityCoordinates.text = String.format(
-                        getString(R.string.city_coordinates),
-                        it.lat,
-                        it.lon
-                    )
-                }
-                // отрисовываем данные о погоде в городе
+        // делаем невидимым progressBar
+        binding.progressBar.visibility = View.GONE
+        with(binding) {
+            // отрисовываем данные о конкретном городе
+            city.let {
+                cityName.text = it.cityName
+                cityCoordinates.text = String.format(
+                    getString(R.string.city_coordinates),
+                    it.lat,
+                    it.lon
+                )
+            }
+            // отрисовываем данные о погоде в городе
                 weatherDTO.fact.let {
                     temperatureValue.text = it.temp.toString()
                     feelsLikeValue.text = it.feels_like.toString()
@@ -203,24 +157,18 @@ class WeatherListFragment : Fragment() {
 
     // метод определяет источник ошибки и открывает соответствующее диалоговое окно
     private fun onFailed(throwable: Throwable) {
+        // делаем невидимым progressBar
+        binding.progressBar.visibility = View.GONE
         if ((throwable is UnknownHostException) && !isConnect(context))
             createAlertDialogForNoNetworkConnection()
         else
             createAlertDialogForNoOtherErrors()
     }
 
-    override fun onStop() {
+    override fun onDestroyView() {
         if (isBound)
             context?.unbindService(serviceConnection)
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
         _binding = null
-        context?.let {
-            LocalBroadcastManager.getInstance(it)
-                .unregisterReceiver(broadcastReceiver)
-        }
         super.onDestroyView()
     }
 }

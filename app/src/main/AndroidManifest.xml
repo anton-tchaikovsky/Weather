@@ -21,22 +21,14 @@
         <receiver
             android:name=".broadcastReceiver.BroadcastReceiverForStartApp"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.example.weather.broadcastReceiver.broadcastReceiverForStartApp" />
             </intent-filter>
-
         </receiver>
 
         <service android:name=".service.WeatherServiceWithBinder" />
-        <service
-            android:name=".service.WeatherServiceWithBroadcast"
-            android:enabled="true"
-            android:exported="true" />
-        <service
-            android:name=".service.WeatherJobServiceWithBroadcast"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
             android:name=".view.WeatherActivity"
@@ -48,7 +40,6 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.WeatherIntentServiceWithBroadcast" />
     </application>
 
 </manifest>
