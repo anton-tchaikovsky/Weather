@@ -1,7 +1,6 @@
 package com.example.weather.model
 
-class RepositoryLocalImpl: RepositoryCityList, RepositoryWeather {
-    override fun getWeather(lat:Double, lon:Double): Weather = Weather()
+class RepositoryLocalImpl: RepositoryCityList {
     override fun getCityList(location: Location): List<City> =
         when(location){
             Location.LocationRus -> getCityListRus()
@@ -10,7 +9,9 @@ class RepositoryLocalImpl: RepositoryCityList, RepositoryWeather {
 }
 
 class RepositoryRemoteImpl: RepositoryCityList, RepositoryWeather {
-    override fun getWeather(lat:Double, lon:Double)= Weather()
+    override fun getWeatherFromServer(requestLink: String, callback: okhttp3.Callback) {
+        RemoteDataWeatherSource().getWeatherFromWebService(requestLink, callback)
+    }
     override fun getCityList(location: Location): List<City> =
         when(location){
             Location.LocationRus -> getCityListRus()

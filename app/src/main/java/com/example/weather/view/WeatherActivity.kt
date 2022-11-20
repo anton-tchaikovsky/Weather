@@ -15,7 +15,6 @@ import com.example.weather.utils.CHANNEL_ID
 import com.example.weather.utils.CHANNEL_NAME
 import com.example.weather.viewmodel.ThemeViewModel
 
-
 class WeatherActivity : AppCompatActivity() {
 
     private var _binding:WeatherActivityBinding? = null

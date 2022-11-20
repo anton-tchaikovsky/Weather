@@ -1,26 +1,22 @@
 package com.example.weather.view
 
 import android.annotation.SuppressLint
-import android.content.ComponentName
-import android.content.Context.BIND_AUTO_CREATE
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
 import com.example.weather.model.dto.WeatherDTO
-import com.example.weather.service.LoadingState
-import com.example.weather.service.WeatherServiceWithBinder
 import com.example.weather.utils.*
+import com.example.weather.viewmodel.LoadingState
+import com.example.weather.viewmodel.WeatherViewModel
 import java.net.UnknownHostException
 
 class WeatherListFragment : Fragment() {
@@ -39,41 +35,9 @@ class WeatherListFragment : Fragment() {
     // создание переменной для города
     private lateinit var city: City
 
-    private var isBound = false
-    private lateinit var serviceConnection:ServiceConnection
-
     // создание переменной binding, относящейся к классу соответствующего макета
     private var _binding: WeatherFragmentMainBinding? = null
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        serviceConnection = object :ServiceConnection{
-            var binderWeather:WeatherServiceWithBinder.BinderWeather? = null
-            @RequiresApi(Build.VERSION_CODES.N)
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binderWeather = service as (WeatherServiceWithBinder.BinderWeather?)
-                binderWeather?.run{
-                    isBound = true
-                    getWeatherServiceWithBinder().weatherLoading(city) { loadingState ->
-                        activity?.runOnUiThread {
-                            when (loadingState) {
-                                is LoadingState.Success -> loadingState.weatherDTO?.let {
-                                    setWeatherForView(city, it)
-                                }
-                                is LoadingState.Error -> loadingState.error?.let { onFailed(it) }
-                            }
-                        }
-                    }
-                }
-            }
-            override fun onServiceDisconnected(name: ComponentName?) {
-                isBound=false
-                binderWeather = null
-            }
-        }
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,19 +52,22 @@ class WeatherListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // получаем конкретный город (с проверкой на null)
         arguments?.getParcelable<City>(BUNDLE_EXTRA)?.let {
             city = it
         }
 
-        // запускаем сервис-bind для загрузки данных о погоде и обрабатываем полученные данные
-        context?.let {
-            it.bindService(
-                Intent(it, WeatherServiceWithBinder::class.java),
-                serviceConnection,
-                BIND_AUTO_CREATE
-            )
+        val viewModel = ViewModelProvider(this)[WeatherViewModel::class.java]
+        viewModel.run {
+            getLiveData().observe(viewLifecycleOwner) { renderData(it) }
+            getWeatherDTO(city)
+        }
+    }
+
+    private fun renderData(loadingState: LoadingState) {
+        when (loadingState) {
+            is LoadingState.Error -> onFailed(loadingState.error)
+            is LoadingState.Success -> setWeatherForView(city, loadingState.weatherDTO)
         }
     }
 
@@ -166,8 +133,6 @@ class WeatherListFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        if (isBound)
-            context?.unbindService(serviceConnection)
         _binding = null
         super.onDestroyView()
     }

@@ -7,13 +7,13 @@ import com.example.weather.model.RepositoryCityList
 import com.example.weather.model.RepositoryLocalImpl
 import com.example.weather.model.RepositoryRemoteImpl
 
-class WeatherListViewModel(
+class CityListViewModel(
 
-    // создание liveData для данных о погоде
+    // создание liveData для данных о списке городов
     private val liveData: MutableLiveData<AppState> =
         MutableLiveData()) : ViewModel() {
 
-    // создание переменной для репозитория, предоставляющего данные о погоде
+    // создание переменной для репозитория, предоставляющего данные о списке городов
     private lateinit var repositoryImpl: RepositoryCityList
 
     // метод для получения liveData
@@ -55,7 +55,7 @@ class WeatherListViewModel(
         liveData.value = AppState.Success(repositoryImpl.getCityList(location))
     }
 
-    // метод эммулирует, успешно ли произошла загрузка данных о погоде
+    // метод эммулирует, успешно ли произошла загрузка данных о списке городов
     private fun isSuccess() = (0..2).random()!=1
 
 }

@@ -14,7 +14,7 @@ import com.example.weather.databinding.FragmentCityListBinding
 import com.example.weather.model.City
 import com.example.weather.model.Location
 import com.example.weather.viewmodel.AppState
-import com.example.weather.viewmodel.WeatherListViewModel
+import com.example.weather.viewmodel.CityListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
@@ -40,7 +40,7 @@ class CityListFragment : Fragment() {
     }
 
     // создаем ссылку на viewModel
-    private lateinit var viewModel:WeatherListViewModel
+    private lateinit var viewModel:CityListViewModel
 
     private var isRussian = true
 
@@ -67,7 +67,7 @@ class CityListFragment : Fragment() {
         }
 
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
-        viewModel = ViewModelProvider(this@CityListFragment)[WeatherListViewModel::class.java]
+        viewModel = ViewModelProvider(this@CityListFragment)[CityListViewModel::class.java]
 
         // создание наблюдателя, обработка исключения, при отсутствии данных
         val observer = Observer<AppState>{
@@ -107,7 +107,7 @@ class CityListFragment : Fragment() {
     }
 
     // метод запрашивает список городов в зависимости от условия isRussian
-    private fun WeatherListViewModel.getCityListIf (isRussian: Boolean){
+    private fun CityListViewModel.getCityListIf (isRussian: Boolean){
         if (isRussian)
             getCityList(Location.LocationRus)
         else

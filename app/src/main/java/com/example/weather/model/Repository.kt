@@ -1,7 +1,7 @@
 package com.example.weather.model
 
 fun interface RepositoryWeather {
-    fun getWeather(lat:Double, lon:Double): Weather
+    fun getWeatherFromServer(requestLink:String, callback: okhttp3.Callback)
 }
 
 fun interface RepositoryCityList {
