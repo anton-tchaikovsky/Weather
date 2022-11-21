@@ -10,6 +10,8 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import coil.api.load
+import com.bumptech.glide.Glide
 import com.example.weather.R
 import com.example.weather.databinding.WeatherFragmentMainBinding
 import com.example.weather.model.City
@@ -17,6 +19,7 @@ import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.utils.*
 import com.example.weather.viewmodel.LoadingState
 import com.example.weather.viewmodel.WeatherViewModel
+import com.squareup.picasso.Picasso
 import java.net.UnknownHostException
 
 class WeatherListFragment : Fragment() {
@@ -75,7 +78,14 @@ class WeatherListFragment : Fragment() {
     private fun setWeatherForView(city: City, weatherDTO: (WeatherDTO)) {
         // делаем невидимым progressBar
         binding.progressBar.visibility = View.GONE
+
         with(binding) {
+            // отрисовка изображения заголовка
+            /*Glide.with(this@WeatherListFragment).load("https://freepngimg.com/thumb/city/36284-8-city-transparent-image.png").into(this@with.headerView)
+            Picasso.get()
+                .load("https://freepngimg.com/thumb/city/36284-8-city-transparent-image.png")
+                .into(this@with.headerView)*/
+            this@with.headerView.load("https://freepngimg.com/thumb/city/36284-8-city-transparent-image.png")
             // отрисовываем данные о конкретном городе
             city.let {
                 cityName.text = it.cityName
