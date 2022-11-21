@@ -1,19 +1,23 @@
 package com.example.weather.model
 
 import com.example.weather.BuildConfig
-import com.example.weather.utils.API_KEY_PROPERTIES
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import com.example.weather.model.dto.WeatherDTO
+import com.example.weather.utils.BASE_URL
+import com.google.gson.GsonBuilder
+import retrofit2.Callback
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class RemoteDataWeatherSource {
 
-    fun getWeatherFromWebService(requestLink: String, callback: okhttp3.Callback){
-        // настраиваем и создаем запрос
-        val request = Request.Builder()
-            .header(API_KEY_PROPERTIES, BuildConfig.WEATHER_API_KEY)
-            .url(requestLink)
-            .build()
-        // отправляем запрос и ставим его в очередь на получение ответа
-        OkHttpClient().newCall(request).enqueue(callback)
+    // создаем запрос
+    private val weatherAPI = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+        .build().create(WeatherAPI::class.java)
+
+    // заполняем и отправляем запрос, ставим его в очередь на получение данных
+    fun getWeatherFromWebService(city: City, callback: Callback<WeatherDTO>){
+        weatherAPI.getWeatherDTO(BuildConfig.WEATHER_API_KEY, city.lat, city.lon).enqueue(callback)
     }
 }

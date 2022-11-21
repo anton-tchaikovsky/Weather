@@ -1,19 +1,8 @@
 package com.example.weather.utils
 
-
-const val CITY = "City"
 const val API_KEY_PROPERTIES = "X-Yandex-API-Key"
-const val WEATHER_INTENT_ACTION = "WeatherIntentAction"
-const val WEATHER_DTO = "WeatherDTO"
-const val ERROR = "Error"
-const val SUCCESS_LOADING = "SuccessLoading"
-const val ERROR_LOADING = "ErrorLoading"
-const val RESULT_LOADING = "ResultLoading"
-const val REQUEST_METHOD_GET = "GET"
-const val CONNECT_TIMEOUT = 10000
-const val JOB_INFO_ID = 234135
-const val LATITUDE = "Latitude"
-const val LONGITUDE = "Longitude"
+const val LATITUDE = "Lat"
+const val LONGITUDE = "Lon"
 const val MESSAGE_DISCONNECT = "Отсутствует подключение к сети"
 const val  MESSAGE_CONNECT = "Подключение к сети восстановлено"
 const val MESSAGE_MAKE_CONNECT = "Подключитесь к сети и повторите запрос"
@@ -24,3 +13,5 @@ const val MESSAGE_LAUNCH_APP_TITLE = "Открыть приложение Weathe
 const val MESSAGE_LAUNCH_APP_TEXT = "Нажмите, чтобы открыть приложение Weather"
 const val CHANNEL_ID = "ChannelIDForWeatherNotification"
 const val CHANNEL_NAME = "ChannelForWeather"
+const val END_POINT = "v2/informers"
+const val BASE_URL = "https://api.weather.yandex.ru/"

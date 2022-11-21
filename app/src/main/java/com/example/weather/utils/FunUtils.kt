@@ -3,21 +3,8 @@ package com.example.weather.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.os.Build
-import androidx.annotation.RequiresApi
-import com.example.weather.model.City
-import java.io.BufferedReader
-import java.util.stream.Collectors
-
-
-@RequiresApi(Build.VERSION_CODES.N)
-fun getLines(reader: BufferedReader): String {
-    return reader.lines().collect(Collectors.joining("\n"))
-}
 
 fun translateConditionInRussian(conditionInEnglish:String) = conditionMap[conditionInEnglish]
-
-fun setURL(city:City) = "https://api.weather.yandex.ru/v2/informers?lat=${city.lat}&lon=${city.lon}&[lang=<ru_RU>]"
 
 @Suppress("DEPRECATION")
 fun isConnect(context: Context?):Boolean{
