@@ -1,6 +1,6 @@
 package com.example.weather.viewmodel
 
-import com.example.weather.model.City
+import com.example.weather.model.city.City
 
 sealed class AppState{
     data class Success (val cityList: List <City>): AppState()

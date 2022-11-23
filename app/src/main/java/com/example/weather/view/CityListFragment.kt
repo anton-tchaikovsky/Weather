@@ -11,8 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
-import com.example.weather.model.City
-import com.example.weather.model.Location
+import com.example.weather.model.city.City
+import com.example.weather.model.city.Location
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.CityListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton

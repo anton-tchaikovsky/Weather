@@ -3,6 +3,10 @@ package com.example.weather.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
+import androidx.appcompat.widget.AppCompatImageView
+import coil.ImageLoader
+import coil.decode.SvgDecoder
+import coil.request.LoadRequest
 
 fun translateConditionInRussian(conditionInEnglish:String) = conditionMap[conditionInEnglish]
 
@@ -13,6 +17,19 @@ fun isConnect(context: Context?):Boolean{
     return (connectInfo != null) && connectInfo.isConnectedOrConnecting
 }
 
+// функция загружает svg-изображение по url
+fun AppCompatImageView.loadSvg(url:String){
+    val imageLoader = ImageLoader.Builder(this.context)
+        .componentRegistry {
+            add(SvgDecoder(this@loadSvg.context))
+        }
+        .build()
+    val request = LoadRequest.Builder(this.context)
+        .data(url)
+        .target(this)
+        .build()
+    imageLoader.execute(request)
+}
 
 val conditionMap = hashMapOf(
     "clear" to "ясно",

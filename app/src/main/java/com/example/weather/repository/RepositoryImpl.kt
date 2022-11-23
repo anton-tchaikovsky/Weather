@@ -1,5 +1,11 @@
-package com.example.weather.model
+package com.example.weather.repository
 
+import com.example.weather.model.RemoteDataWeatherSource
+import com.example.weather.model.Themes
+import com.example.weather.model.city.City
+import com.example.weather.model.city.Location
+import com.example.weather.model.city.getCityListRus
+import com.example.weather.model.city.getCityListWorld
 import com.example.weather.model.dto.WeatherDTO
 import retrofit2.Callback
 
@@ -24,7 +30,7 @@ class RepositoryRemoteImpl: RepositoryCityList, RepositoryWeather {
     }
 }
 
-class RepositoryThemesImpl: RepositoryThemes{
+class RepositoryThemesImpl: RepositoryThemes {
 
     override fun getTheme(themeKey: String) =
         when(themeKey){

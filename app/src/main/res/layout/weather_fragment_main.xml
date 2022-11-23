@@ -24,15 +24,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-       <androidx.appcompat.widget.AppCompatImageView
-           android:id="@+id/header_view"
-           android:layout_width="match_parent"
-           android:layout_height="100dp"
-           app:layout_constraintEnd_toEndOf="parent"
-           app:layout_constraintStart_toStartOf="parent"
-           app:layout_constraintTop_toTopOf="parent"
-           />
-
         <TextView
             android:id="@+id/cityName"
             android:layout_width="wrap_content"
@@ -42,30 +33,27 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/header_view"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Москва" />
 
-        <TextView
-            android:id="@+id/cityCoordinates"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/condition_icon"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cityName"
-            tools:text="lt/ln: 55.755826, 37.617299900000035" />
+            app:layout_constraintTop_toBottomOf="@+id/cityName" />
 
         <TextView
-        android:id="@+id/weatherCondition"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_15_dp"
-        android:textSize="@dimen/feels_like_text_size"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cityCoordinates"
-        tools:text="Облачно" />
+            android:id="@+id/weatherCondition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/feels_like_text_size"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/condition_icon"
+            tools:text="Облачно" />
 
         <TextView
             android:id="@+id/temperatureLabel"
@@ -82,7 +70,7 @@
             android:id="@+id/temperatureValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_15_dp"
+            android:layout_marginTop="@dimen/margin_10_dp"
             android:textSize="@dimen/temperature_value_text_size"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -95,7 +83,7 @@
             android:id="@+id/feelsLikeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_15_dp"
+            android:layout_marginTop="@dimen/margin_10_dp"
             android:text="@string/feels_like_label"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
@@ -106,7 +94,7 @@
             android:id="@+id/feelsLikeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_15_dp"
+            android:layout_marginTop="@dimen/margin_10_dp"
             android:textSize="@dimen/feels_like_text_size"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"

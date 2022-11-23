@@ -2,7 +2,6 @@
     <string name="app_name">Weather</string>
     <string name="temperature_label">Температура</string>
     <string name="feels_like_label">Ощущается как</string>
-    <string name="city_coordinates">lt/ln: %s, %s"</string>
     <string name="loading">Загрузка данных</string>
     <string name="return_loading">Повторить попытку</string>
     <!-- TODO: Remove or change this placeholder text -->

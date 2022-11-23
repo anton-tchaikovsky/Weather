@@ -2,8 +2,8 @@ package com.example.weather.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.weather.model.City
-import com.example.weather.model.RepositoryRemoteImpl
+import com.example.weather.model.city.City
+import com.example.weather.repository.RepositoryRemoteImpl
 import com.example.weather.model.dto.WeatherDTO
 
 class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = MutableLiveData<LoadingState>()): ViewModel() {

@@ -1,4 +1,4 @@
-package com.example.weather.model
+package com.example.weather.model.city
 
 sealed class Location{
     object LocationRus: Location()

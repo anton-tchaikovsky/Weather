@@ -2,10 +2,10 @@ package com.example.weather.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.weather.model.Location
-import com.example.weather.model.RepositoryCityList
-import com.example.weather.model.RepositoryLocalImpl
-import com.example.weather.model.RepositoryRemoteImpl
+import com.example.weather.model.city.Location
+import com.example.weather.repository.RepositoryCityList
+import com.example.weather.repository.RepositoryLocalImpl
+import com.example.weather.repository.RepositoryRemoteImpl
 
 class CityListViewModel(
 
@@ -31,7 +31,7 @@ class CityListViewModel(
     private fun isConnect() = false
 
     // метод обеспечивает формирование данных о городах с помощью  liveData и их передачу
-    fun loadingCityList(location:Location) {
+    fun loadingCityList(location: Location) {
         getSelectionSource(isConnect())
         if (isSuccess()){
             // эммуляция загрузки данных
@@ -51,7 +51,7 @@ class CityListViewModel(
     }
 
     // метод обеспечивает передачу данных о городах (без загрузки и ошибки загрузки)
-    fun getCityList(location:Location){
+    fun getCityList(location: Location){
         liveData.value = AppState.Success(repositoryImpl.getCityList(location))
     }
 

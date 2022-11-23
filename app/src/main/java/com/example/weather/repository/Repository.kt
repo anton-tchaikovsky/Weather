@@ -1,5 +1,7 @@
-package com.example.weather.model
+package com.example.weather.repository
 
+import com.example.weather.model.city.City
+import com.example.weather.model.city.Location
 import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.utils.API_KEY_PROPERTIES
 import com.example.weather.utils.END_POINT

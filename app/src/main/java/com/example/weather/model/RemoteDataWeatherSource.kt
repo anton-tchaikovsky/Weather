@@ -1,7 +1,9 @@
 package com.example.weather.model
 
 import com.example.weather.BuildConfig
+import com.example.weather.model.city.City
 import com.example.weather.model.dto.WeatherDTO
+import com.example.weather.repository.WeatherAPI
 import com.example.weather.utils.BASE_URL
 import com.google.gson.GsonBuilder
 import retrofit2.Callback

@@ -4,14 +4,14 @@ import android.icu.util.Calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import com.example.weather.model.RepositoryThemes
-import com.example.weather.model.RepositoryThemesImpl
+import com.example.weather.repository.RepositoryThemes
+import com.example.weather.repository.RepositoryThemesImpl
 
 
 class ThemeViewModel: ViewModel() {
 
     // создание RepositoryThemes для доступа к данным по темам
-    private val repositoryThemes:RepositoryThemes = RepositoryThemesImpl()
+    private val repositoryThemes: RepositoryThemes = RepositoryThemesImpl()
 
     // метод обеспечивает формирование данных о сезоне
     @RequiresApi(Build.VERSION_CODES.N)
