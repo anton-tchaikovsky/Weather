@@ -1,6 +1,7 @@
 package com.example.weather.view
 
 import android.annotation.SuppressLint
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentCityListBinding
 import com.example.weather.model.city.City
 import com.example.weather.model.city.Location
+import com.example.weather.utils.IS_RUSSIAN
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.CityListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -66,6 +68,9 @@ class CityListFragment : Fragment() {
             adapter = citiesListAdapter
         }
 
+        //запрос в настройки для получения информации о сохраненной локации
+        isRussian = activity?.getPreferences(MODE_PRIVATE)?.getBoolean(IS_RUSSIAN, true) ?: true
+
         // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
         viewModel = ViewModelProvider(this@CityListFragment)[CityListViewModel::class.java]
 
@@ -81,18 +86,23 @@ class CityListFragment : Fragment() {
         }
 
         viewModel.run {
-            //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла WeatherListFragment и наблюдателе
+            //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла CityListFragment и наблюдателе
             getLiveData().observe(viewLifecycleOwner, observer)
-            //первичный запрос во WeatherListViewModel для получения информации о погоде
-            loadingCityList(Location.LocationRus)
+            //первичный запрос в CityListViewModel для получения информации о списке городов
+            loadingCityList(if (isRussian)
+                Location.LocationRus
+            else
+                Location.LocationWorld)
         }
 
         // установка слушателя на FAB
         binding.cityFAB.setOnClickListener {cityFAB ->
             isRussian = !isRussian
-            isRussian.let { isRussian ->
-                (cityFAB as FloatingActionButton).setImageDrawableIf(isRussian)
-                viewModel.getCityListIf(isRussian)
+            (cityFAB as FloatingActionButton).setImageDrawableIf(isRussian)
+            viewModel.getCityListIf(isRussian)
+            //сохраняем в настройки выбранную локацию
+            activity?.run {
+                getPreferences(MODE_PRIVATE).edit().putBoolean(IS_RUSSIAN, isRussian).apply()
             }
         }
     }
@@ -136,7 +146,7 @@ class CityListFragment : Fragment() {
 
     // метод настраивает отображение при иммитации загрузки
     private fun FragmentCityListBinding.showLoading() {
-        // отклюение видимости FAB
+        // отключение видимости FAB
         cityFAB.visibility = View.GONE
         // включение видимости макета c progressBar
         loadingLayout.visibility = View.VISIBLE
@@ -144,6 +154,8 @@ class CityListFragment : Fragment() {
 
     // метод настраивает отображение после иммитации загрузки
     private fun FragmentCityListBinding.showFAB() {
+        //установка изображения на FAB
+        cityFAB.setImageDrawableIf(isRussian)
         // включение видимости FAB
         cityFAB.visibility = View.VISIBLE
         // отключение видимости макета c progressBar

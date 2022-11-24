@@ -3,6 +3,7 @@ package com.example.weather.utils
 const val API_KEY_PROPERTIES = "X-Yandex-API-Key"
 const val LATITUDE = "Lat"
 const val LONGITUDE = "Lon"
+const val IS_RUSSIAN = "IsRussian"
 const val MESSAGE_DISCONNECT = "Отсутствует подключение к сети"
 const val  MESSAGE_CONNECT = "Подключение к сети восстановлено"
 const val MESSAGE_MAKE_CONNECT = "Подключитесь к сети и повторите запрос"
