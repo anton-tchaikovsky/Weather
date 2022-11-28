@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -67,5 +68,8 @@ dependencies {
     //Coil
     implementation 'io.coil-kt:coil:0.11.0'
     implementation("io.coil-kt:coil-svg:0.11.0")
+    //Room
+    implementation 'androidx.room:room-runtime:2.4.3'
+    kapt 'androidx.room:room-compiler:2.4.3'
 
 }

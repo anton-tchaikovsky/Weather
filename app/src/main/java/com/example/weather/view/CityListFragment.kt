@@ -11,10 +11,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weather.R
-import com.example.weather.databinding.FragmentCityListBinding
+import com.example.weather.databinding.CityListFragmentBinding
 import com.example.weather.model.city.City
 import com.example.weather.model.city.Location
 import com.example.weather.utils.IS_RUSSIAN
+import com.example.weather.utils.TAG_WEATHER_FRAGMENT
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.CityListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -22,7 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 
 class CityListFragment : Fragment() {
 
-    private var _binding: FragmentCityListBinding?=null
+    private var _binding: CityListFragmentBinding?=null
     private val binding get() = _binding!!
 
     // функциональный интерфейс для обработки нажатия на элемент
@@ -32,11 +33,11 @@ class CityListFragment : Fragment() {
 
     // создаем адаптер CityListFragmentAdapter и передаем в конструктор объект OnItemCityClickListener,
     // при этом переопределяем метод onItemClick(Weather) (реализация через лямбду)
-    private val citiesListAdapter = CityListFragmentAdapter { city ->
+    private val citiesListAdapter = CityListAdapter { city ->
         activity?.supportFragmentManager?.apply {
             beginTransaction()
                 .hide(this@CityListFragment) // скрываем текущий фрагмент(при popBackStake вернется)
-                .add(R.id.container, WeatherListFragment.newInstance(city))
+                .add(R.id.container, WeatherFragment.newInstance(city), TAG_WEATHER_FRAGMENT)
                 .addToBackStack("")
                 .commitAllowingStateLoss()}
     }
@@ -55,7 +56,7 @@ class CityListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCityListBinding.inflate(inflater, container,false)
+        _binding = CityListFragmentBinding.inflate(inflater, container,false)
         return binding.root
     }
 
@@ -145,7 +146,7 @@ class CityListFragment : Fragment() {
     }
 
     // метод настраивает отображение при иммитации загрузки
-    private fun FragmentCityListBinding.showLoading() {
+    private fun CityListFragmentBinding.showLoading() {
         // отключение видимости FAB
         cityFAB.visibility = View.GONE
         // включение видимости макета c progressBar
@@ -153,7 +154,7 @@ class CityListFragment : Fragment() {
     }
 
     // метод настраивает отображение после иммитации загрузки
-    private fun FragmentCityListBinding.showFAB() {
+    private fun CityListFragmentBinding.showFAB() {
         //установка изображения на FAB
         cityFAB.setImageDrawableIf(isRussian)
         // включение видимости FAB

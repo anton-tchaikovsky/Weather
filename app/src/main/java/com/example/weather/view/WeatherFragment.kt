@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
-import com.example.weather.databinding.WeatherFragmentMainBinding
+import com.example.weather.databinding.WeatherFragmentBinding
 import com.example.weather.model.city.City
 import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.utils.*
@@ -19,13 +19,13 @@ import com.example.weather.viewmodel.LoadingState
 import com.example.weather.viewmodel.WeatherViewModel
 import java.net.UnknownHostException
 
-class WeatherListFragment : Fragment() {
+class WeatherFragment : Fragment() {
 
     // создание companion object (статического метода) для получения экземпляра WeatherListFragment
     companion object {
         const val BUNDLE_EXTRA = "weather"
-        fun newInstance(city: City): WeatherListFragment =
-            WeatherListFragment().apply {
+        fun newInstance(city: City): WeatherFragment =
+            WeatherFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(BUNDLE_EXTRA, city)
                 }
@@ -36,15 +36,18 @@ class WeatherListFragment : Fragment() {
     private lateinit var city: City
 
     // создание переменной binding, относящейся к классу соответствующего макета
-    private var _binding: WeatherFragmentMainBinding? = null
+    private var _binding: WeatherFragmentBinding? = null
     private val binding get() = _binding!!
+
+    // создаем переменную для доступа к viewModel
+    private val viewModel:WeatherViewModel by lazy { ViewModelProvider(this)[WeatherViewModel::class.java] }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // создание view соответствующего макета
-        _binding = WeatherFragmentMainBinding.inflate(inflater, container, false)
+        _binding = WeatherFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -57,7 +60,6 @@ class WeatherListFragment : Fragment() {
             city = it
         }
 
-        val viewModel = ViewModelProvider(this)[WeatherViewModel::class.java]
         viewModel.run {
             getLiveData().observe(viewLifecycleOwner) { renderData(it) }
             getWeatherDTO(city)
@@ -67,7 +69,13 @@ class WeatherListFragment : Fragment() {
     private fun renderData(loadingState: LoadingState) {
         when (loadingState) {
             is LoadingState.Error -> onFailed(loadingState.error)
-            is LoadingState.Success -> setWeatherForView(city, loadingState.weatherDTO)
+            is LoadingState.Success -> {
+                loadingState.weatherDTO.let {
+                    setWeatherForView(city, it)
+                    // сохраняем историю запроса в БД
+                    viewModel.saveWeather(city,it)
+                }
+            }
         }
     }
 

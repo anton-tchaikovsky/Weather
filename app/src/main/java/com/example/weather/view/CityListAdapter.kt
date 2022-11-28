@@ -7,7 +7,7 @@ import com.example.weather.databinding.CityItemBinding
 import com.example.weather.model.city.City
 
 // в конструктор передаем объект CityListFragment.OnItemCityClickListener для обработки нажатия на элемент списка
-class CityListFragmentAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListFragmentAdapter.ViewHolder>() {
+class CityListAdapter (private var itemCityClickListener: CityListFragment.OnItemCityClickListener?): RecyclerView.Adapter<CityListAdapter.ViewHolder>() {
 
     private var dataCityList:List<City> = listOf()
 

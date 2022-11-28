@@ -1,5 +1,6 @@
 package com.example.weather.repository
 
+import com.example.weather.model.Weather
 import com.example.weather.model.city.City
 import com.example.weather.model.city.Location
 import com.example.weather.model.dto.WeatherDTO
@@ -23,6 +24,11 @@ fun interface RepositoryCityList {
 
 fun interface RepositoryThemes {
     fun getTheme(themeKey:String): Int
+}
+
+interface RepositoryHistory{
+    fun getAllHistoryWeather():List<Weather>
+    fun saveWeather(weather: Weather)
 }
 
 // интерфейс для запроса

@@ -2,7 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 <item
-    android:title="menu"
-    android:id="@+id/menu_thread"
+    android:title="@string/request_history"
+    android:icon="@drawable/ic_baseline_history_24"
+    android:id="@+id/history_menu"
     app:showAsAction="always"/>
 </menu>

@@ -7,6 +7,8 @@ import androidx.appcompat.widget.AppCompatImageView
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import coil.request.LoadRequest
+import com.example.weather.model.Weather
+import com.example.weather.model.room.HistoryEntity
 
 fun translateConditionInRussian(conditionInEnglish:String) = conditionMap[conditionInEnglish]
 
@@ -16,6 +18,11 @@ fun isConnect(context: Context?):Boolean{
     val connectInfo = connectivityManager.activeNetworkInfo
     return (connectInfo != null) && connectInfo.isConnectedOrConnecting
 }
+
+fun convertFromListEntityToListWeather(allHistoryEntity:List<HistoryEntity>) =
+    allHistoryEntity.map { Weather(it.cityName, it.temperature, it.condition ) }
+
+fun convertFromWeatherToEntity(weather: Weather) = HistoryEntity(0,weather.cityName, weather.temperature, weather.condition)
 
 // функция загружает svg-изображение по url
 fun AppCompatImageView.loadSvg(url:String){

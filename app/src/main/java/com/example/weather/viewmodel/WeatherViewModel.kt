@@ -2,13 +2,16 @@ package com.example.weather.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.weather.model.Weather
 import com.example.weather.model.city.City
-import com.example.weather.repository.RepositoryRemoteImpl
 import com.example.weather.model.dto.WeatherDTO
+import com.example.weather.repository.RepositoryHistoryImpl
+import com.example.weather.repository.RepositoryRemoteImpl
 
 class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = MutableLiveData<LoadingState>()): ViewModel() {
 
     private val repositoryWeather = RepositoryRemoteImpl()
+    private val repositoryHistory = RepositoryHistoryImpl()
 
     private val callback = object : retrofit2.Callback<WeatherDTO>{
         override fun onResponse(
@@ -31,5 +34,9 @@ class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = Mut
 
     fun getWeatherDTO(city: City){
         repositoryWeather.getWeatherFromServer(city, callback)
+    }
+
+    fun saveWeather(city: City, weatherDTO: WeatherDTO){
+        repositoryHistory.saveWeather(Weather(city.cityName, weatherDTO.fact.temp, weatherDTO.fact.condition))
     }
 }

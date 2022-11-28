@@ -6,13 +6,16 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.weather.R
 import com.example.weather.broadcastReceiver.ConnectivityBroadcastReceiver
 import com.example.weather.databinding.WeatherActivityBinding
-import com.example.weather.utils.CHANNEL_ID
-import com.example.weather.utils.CHANNEL_NAME
+import com.example.weather.utils.*
 import com.example.weather.viewmodel.ThemeViewModel
 
 class WeatherActivity : AppCompatActivity() {
@@ -41,7 +44,7 @@ class WeatherActivity : AppCompatActivity() {
         // создание и запуск CityListFragment
      if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(binding.container.id, CityListFragment.newInstance())
+                .replace(binding.container.id, CityListFragment.newInstance(), TAG_CITY_LIST_FRAGMENT)
                 .commitNow()
         }
     }
@@ -69,7 +72,28 @@ class WeatherActivity : AppCompatActivity() {
             // запускаем канал
             notificationManager.createNotificationChannel(channel)
         }
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.history_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if(item.itemId == R.id.history_menu && supportFragmentManager.findFragmentByTag(
+                TAG_HISTORY_WEATHER_FRAGMENT)==null){
+            supportFragmentManager.apply {
+                beginTransaction().let {
+                    val currentFragment: Fragment? = this.findFragmentByTag(TAG_WEATHER_FRAGMENT) ?: this.findFragmentByTag(TAG_CITY_LIST_FRAGMENT)
+                    if (currentFragment!=null) it.hide(currentFragment)
+                    it.add(binding.container.id, HistoryWeatherFragment.newInstance(), TAG_HISTORY_WEATHER_FRAGMENT)
+                    it.addToBackStack("")
+                    it.commitAllowingStateLoss()
+                }
+            }
+            true
+        } else
+            super.onOptionsItemSelected(item)
     }
 
 }
