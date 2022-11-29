@@ -2,11 +2,13 @@ package com.example.weather.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weather.R
 import com.example.weather.databinding.HistoryWeatherFragmentBinding
 import com.example.weather.model.Weather
 import com.example.weather.viewmodel.HistoryWeatherViewModel
@@ -29,6 +31,8 @@ class HistoryWeatherFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //включаем меню
+        setHasOptionsMenu(true)
         _binding = HistoryWeatherFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -51,6 +55,11 @@ class HistoryWeatherFragment : Fragment() {
 
     private fun renderData(listWeather: List<Weather>) {
         historyWeatherAdapter.setListWeather(listWeather)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.history_menu)?.isVisible = false
     }
 
     override fun onDestroyView() {

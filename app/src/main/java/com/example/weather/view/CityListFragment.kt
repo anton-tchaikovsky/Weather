@@ -150,7 +150,7 @@ class CityListFragment : Fragment() {
         // отключение видимости FAB
         cityFAB.visibility = View.GONE
         // включение видимости макета c progressBar
-        loadingLayout.visibility = View.VISIBLE
+        includeLoadingLayout.loadingLayout.visibility = View.VISIBLE
     }
 
     // метод настраивает отображение после иммитации загрузки
@@ -160,7 +160,7 @@ class CityListFragment : Fragment() {
         // включение видимости FAB
         cityFAB.visibility = View.VISIBLE
         // отключение видимости макета c progressBar
-        loadingLayout.visibility = View.GONE
+        includeLoadingLayout.loadingLayout.visibility = View.GONE
     }
 
     // отрисовка списка городов

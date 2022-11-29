@@ -33,6 +33,7 @@ class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = Mut
     fun getLiveData() = liveData
 
     fun getWeatherDTO(city: City){
+        liveData.value = LoadingState.Loading
         repositoryWeather.getWeatherFromServer(city, callback)
     }
 

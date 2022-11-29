@@ -74,14 +74,13 @@ class WeatherActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.history_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if(item.itemId == R.id.history_menu && supportFragmentManager.findFragmentByTag(
-                TAG_HISTORY_WEATHER_FRAGMENT)==null){
+        return if(item.itemId == R.id.history_menu){
             supportFragmentManager.apply {
                 beginTransaction().let {
                     val currentFragment: Fragment? = this.findFragmentByTag(TAG_WEATHER_FRAGMENT) ?: this.findFragmentByTag(TAG_CITY_LIST_FRAGMENT)
@@ -97,6 +96,3 @@ class WeatherActivity : AppCompatActivity() {
     }
 
 }
-
-
-

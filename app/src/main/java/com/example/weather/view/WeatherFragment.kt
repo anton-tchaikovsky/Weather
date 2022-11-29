@@ -76,13 +76,16 @@ class WeatherFragment : Fragment() {
                     viewModel.saveWeather(city,it)
                 }
             }
+            LoadingState.Loading ->
+                // делаем видимым progressBar
+                binding.includeLoadingLayout.loadingLayout.visibility = View.VISIBLE
         }
     }
 
     // отрисовка данных о погоде в конкретном городе
     private fun setWeatherForView(city: City, weatherDTO: (WeatherDTO)) {
         // делаем невидимым progressBar
-        binding.progressBar.visibility = View.GONE
+        binding.includeLoadingLayout.loadingLayout.visibility = View.GONE
 
         with(binding) {
 
@@ -99,7 +102,6 @@ class WeatherFragment : Fragment() {
                 // видимость label
                 temperatureLabel.visibility = View.VISIBLE
                 feelsLikeLabel.visibility = View.VISIBLE
-
             }
     }
 
@@ -131,7 +133,7 @@ class WeatherFragment : Fragment() {
     // метод определяет источник ошибки и открывает соответствующее диалоговое окно
     private fun onFailed(throwable: Throwable) {
         // делаем невидимым progressBar
-        binding.progressBar.visibility = View.GONE
+        binding.includeLoadingLayout.loadingLayout.visibility = View.GONE
         if ((throwable is UnknownHostException) && !isConnect(context))
             createAlertDialogForNoNetworkConnection()
         else
