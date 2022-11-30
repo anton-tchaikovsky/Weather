@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
@@ -23,7 +24,7 @@ class WeatherFragment : Fragment() {
 
     // создание companion object (статического метода) для получения экземпляра WeatherListFragment
     companion object {
-        const val BUNDLE_EXTRA = "weather"
+        private const val BUNDLE_EXTRA = "weather"
         fun newInstance(city: City): WeatherFragment =
             WeatherFragment().apply {
                 arguments = Bundle().apply {
@@ -46,6 +47,8 @@ class WeatherFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //включаем меню
+        setHasOptionsMenu(true)
         // создание view соответствующего макета
         _binding = WeatherFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -138,6 +141,24 @@ class WeatherFragment : Fragment() {
             createAlertDialogForNoNetworkConnection()
         else
             createAlertDialogForNoOtherErrors()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.history_menu) {
+            activity?.supportFragmentManager?.apply {
+                beginTransaction().let {
+                    it.hide(this@WeatherFragment)
+                    it.add(
+                        R.id.container,
+                        HistoryWeatherFragment.newInstance(city),
+                        TAG_HISTORY_WEATHER_FRAGMENT)
+                    it.addToBackStack("")
+                    it.commitAllowingStateLoss()
+                }
+            }
+            true
+        } else
+            super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -15,6 +16,7 @@ import com.example.weather.databinding.CityListFragmentBinding
 import com.example.weather.model.city.City
 import com.example.weather.model.city.Location
 import com.example.weather.utils.IS_RUSSIAN
+import com.example.weather.utils.TAG_HISTORY_WEATHER_FRAGMENT
 import com.example.weather.utils.TAG_WEATHER_FRAGMENT
 import com.example.weather.viewmodel.AppState
 import com.example.weather.viewmodel.CityListViewModel
@@ -56,7 +58,9 @@ class CityListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = CityListFragmentBinding.inflate(inflater, container,false)
+        //включаем меню
+        setHasOptionsMenu(true)
+        _binding = CityListFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -171,8 +175,27 @@ class CityListFragment : Fragment() {
         citiesListAdapter.notifyDataSetChanged()
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.history_menu) {
+            activity?.supportFragmentManager?.apply {
+                beginTransaction().let {
+                    it.hide(this@CityListFragment)
+                    it.add(
+                        R.id.container,
+                        HistoryWeatherFragment.newInstance(),
+                        TAG_HISTORY_WEATHER_FRAGMENT
+                    )
+                    it.addToBackStack("")
+                    it.commitAllowingStateLoss()
+                }
+            }
+            true
+        } else
+            super.onOptionsItemSelected(item)
+    }
+
     override fun onDestroyView() {
-        _binding=null
+        _binding = null
         citiesListAdapter.removeListener()
         super.onDestroyView()
     }

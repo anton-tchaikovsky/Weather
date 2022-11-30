@@ -28,7 +28,10 @@ fun interface RepositoryThemes {
 
 interface RepositoryHistory{
     fun getAllHistoryWeather():List<Weather>
+    fun getHistoryWeatherByCity(city: City):List<Weather>
     fun saveWeather(weather: Weather)
+    fun deleteAllHistoryWeather()
+    fun deleteAllHistoryWeatherByCity(city: City)
 }
 
 // интерфейс для запроса

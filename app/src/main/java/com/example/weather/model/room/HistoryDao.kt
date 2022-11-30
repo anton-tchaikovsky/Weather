@@ -19,4 +19,9 @@ interface HistoryDao {
 
     @Delete
     fun deleteHistoryEntity(historyEntity: HistoryEntity)
+
+    @Delete
+    fun deleteListHistoryEntity(listHistoryEntity: List<HistoryEntity>)
+
+
 }

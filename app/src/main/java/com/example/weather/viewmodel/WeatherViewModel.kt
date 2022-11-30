@@ -1,5 +1,6 @@
 package com.example.weather.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weather.model.Weather
@@ -38,6 +39,8 @@ class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = Mut
     }
 
     fun saveWeather(city: City, weatherDTO: WeatherDTO){
-        repositoryHistory.saveWeather(Weather(city.cityName, weatherDTO.fact.temp, weatherDTO.fact.condition))
+        ThreadHistory().getHandler().post {
+            repositoryHistory.saveWeather(Weather(city.cityName, weatherDTO.fact.temp, weatherDTO.fact.condition))
+        }
     }
 }

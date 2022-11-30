@@ -19,10 +19,13 @@ fun isConnect(context: Context?):Boolean{
     return (connectInfo != null) && connectInfo.isConnectedOrConnecting
 }
 
-fun convertFromListEntityToListWeather(allHistoryEntity:List<HistoryEntity>) =
-    allHistoryEntity.map { Weather(it.cityName, it.temperature, it.condition ) }
+fun convertFromListEntityToListWeather(HistoryEntity:List<HistoryEntity>) =
+    HistoryEntity.map { Weather(it.cityName, it.temperature, it.condition ) }
 
 fun convertFromWeatherToEntity(weather: Weather) = HistoryEntity(0,weather.cityName, weather.temperature, weather.condition)
+
+fun convertFromListWeatherToListEntity(listWeather:List<Weather>) =
+    listWeather.map { HistoryEntity(0, it.cityName, it.temperature, it.condition) }
 
 // функция загружает svg-изображение по url
 fun AppCompatImageView.loadSvg(url:String){

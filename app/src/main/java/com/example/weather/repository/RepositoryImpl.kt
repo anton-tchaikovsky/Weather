@@ -29,18 +29,32 @@ class RepositoryRemoteImpl: RepositoryCityList, RepositoryWeather {
             Location.LocationWorld -> getCityListWorld()
         }
 
-    override fun getWeatherFromServer(city: City, callback: Callback<WeatherDTO>) {
+    override fun getWeatherFromServer(city: City, callback: Callback<WeatherDTO>) =
         RemoteDataWeatherSource().getWeatherFromWebService(city, callback)
-    }
+
 }
 
 class RepositoryHistoryImpl:RepositoryHistory{
-    override fun getAllHistoryWeather(): List<Weather> {
-        return convertFromListEntityToListWeather(AppWeather.getHistoryDao().getAllHistoryEntity())
-    }
-    override fun saveWeather(weather: Weather) {
+
+    override fun getAllHistoryWeather(): List<Weather> =
+        convertFromListEntityToListWeather(AppWeather.getHistoryDao().getAllHistoryEntity())
+
+    override fun getHistoryWeatherByCity(city: City): List<Weather> =
+        convertFromListEntityToListWeather(AppWeather.getHistoryDao().getHistoryEntityByCity(city.cityName))
+
+    override fun saveWeather(weather: Weather) =
         AppWeather.getHistoryDao().insertHistoryEntity(convertFromWeatherToEntity(weather))
-    }
+
+    override fun deleteAllHistoryWeather() =
+        AppWeather.getHistoryDao().let {
+            it.deleteListHistoryEntity(it.getAllHistoryEntity())
+        }
+
+    override fun deleteAllHistoryWeatherByCity(city: City) =
+        AppWeather.getHistoryDao().let {
+            it.deleteListHistoryEntity(it.getHistoryEntityByCity(city.cityName))
+        }
+
 }
 
 class RepositoryThemesImpl: RepositoryThemes {

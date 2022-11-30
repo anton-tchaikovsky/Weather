@@ -78,21 +78,4 @@ class WeatherActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.history_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if(item.itemId == R.id.history_menu){
-            supportFragmentManager.apply {
-                beginTransaction().let {
-                    val currentFragment: Fragment? = this.findFragmentByTag(TAG_WEATHER_FRAGMENT) ?: this.findFragmentByTag(TAG_CITY_LIST_FRAGMENT)
-                    if (currentFragment!=null) it.hide(currentFragment)
-                    it.add(binding.container.id, HistoryWeatherFragment.newInstance(), TAG_HISTORY_WEATHER_FRAGMENT)
-                    it.addToBackStack("")
-                    it.commitAllowingStateLoss()
-                }
-            }
-            true
-        } else
-            super.onOptionsItemSelected(item)
-    }
-
 }
