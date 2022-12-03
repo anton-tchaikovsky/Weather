@@ -10,13 +10,13 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.broadcastReceiver.ConnectivityBroadcastReceiver
 import com.example.weather.databinding.WeatherActivityBinding
 import com.example.weather.utils.*
 import com.example.weather.viewmodel.ThemeViewModel
+import kotlinx.android.synthetic.main.weather_activity.*
 
 class WeatherActivity : AppCompatActivity() {
 
@@ -77,5 +77,29 @@ class WeatherActivity : AppCompatActivity() {
    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.history_menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if(item.itemId==R.id.contacts_menu){
+            supportFragmentManager.run {
+                beginTransaction().also {
+                    // скрываем CityListFragment, если он виден
+                    findFragmentByTag(TAG_CITY_LIST_FRAGMENT)?.run{
+                        if (isVisible)
+                            it.hide(this)
+                    }
+                    // скрываем WeatherFragment, если он виден
+                    findFragmentByTag(TAG_WEATHER_FRAGMENT)?.run{
+                        if (isVisible)
+                            it.hide(this)
+                    }
+                    it.add(R.id.container, ContactsFragment.newInstance(), TAG_CONTACTS_FRAGMENT)
+                    .addToBackStack("")
+                    .commitAllowingStateLoss()
+                }
+                true
+            }
+        } else
+        return super.onOptionsItemSelected(item)
     }
 }

@@ -10,4 +10,5 @@
     <dimen name="city_item_text_size">25sp</dimen>
     <dimen name="margin_15_dp">15dp</dimen>
     <dimen name="margin_5_dp">5dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 </resources>

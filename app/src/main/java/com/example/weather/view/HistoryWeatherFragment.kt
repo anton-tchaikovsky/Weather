@@ -77,8 +77,11 @@ class HistoryWeatherFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        // скрываем элемент history_menu
-        menu.findItem(R.id.history_menu)?.isVisible = false
+        // скрываем элементы history_menu и contacts_menu
+        menu.run {
+            findItem(R.id.history_menu)?.isVisible = false
+            findItem(R.id.contacts_menu)?.isVisible = false
+        }
         inflater.inflate(R.menu.delete_all_menu, menu)
     }
 

@@ -23,4 +23,5 @@ const val CONDITION_ICON_URL = "https://yastatic.net/weather/i/icons/funky/dark/
 const val TAG_CITY_LIST_FRAGMENT = "TagCityListFragment"
 const val TAG_WEATHER_FRAGMENT = "TagWeatherFragment"
 const val TAG_HISTORY_WEATHER_FRAGMENT = "TagHistoryWeatherFragment"
+const val TAG_CONTACTS_FRAGMENT = "TagContactsFragment"
 const val HANDLER_THREAD_HISTORY_NAME = "HandlerThreadHistoryName"
