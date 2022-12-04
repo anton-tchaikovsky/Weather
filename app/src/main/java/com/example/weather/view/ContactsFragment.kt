@@ -12,6 +12,8 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weather.R
@@ -25,8 +27,6 @@ class ContactsFragment : Fragment() {
 
     companion object {
         fun newInstance() = ContactsFragment()
-        private const val REQUEST_CODE_FIRST = 11
-        private const val REQUEST_CODE_RATIONALE = 12
     }
 
     override fun onCreateView(
@@ -52,48 +52,34 @@ class ContactsFragment : Fragment() {
                 requireContext(),
                 Manifest.permission.READ_CONTACTS
             ) == PackageManager.PERMISSION_GRANTED -> getContacts()
-            // вызывается в случае первичного отказа пользователя в разрешении на чтение контактов
+            //  запрашиваем разрешение (с Rationale) - вызывается в случае первичного отказа пользователя в разрешении на чтение контактов
             shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> createAlertDialogRationale()
-            else -> requestPermissions(REQUEST_CODE_FIRST) // запрашиваем разрешение
+            else -> requestPermissionsLauncher.launch(Manifest.permission.READ_CONTACTS) // запрашиваем разрешение (без Rationale)
+        }
+    }
+
+    private val requestPermissionsLauncher:ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()){isPermission ->
+            if(isPermission)
+                getContacts()
+            else{
+                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) // срабатывает один раз при первичном отказе (до Rationale)
+                    requireActivity().supportFragmentManager.popBackStack()
+                else createAlertDialogOpenAppSetting() // срабатывает много раз после отказа с “Never ask again” (после Rationale)
+            }
         }
 
-    }
-
-    @Suppress("DEPRECATION")
-    private fun requestPermissions(requestCode: Int) {
-        requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), requestCode)
-    }
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            REQUEST_CODE_FIRST ->
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    getContacts()
-                else {
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) // срабатывает один раз при первичном отказе (до Rationale)
-                        requireActivity().supportFragmentManager.popBackStack()
-                    else createAlertDialogOpenAppSetting() // срабатывает много раз после отказа с “Never ask again” (после Rationale)
-                }
-
-            REQUEST_CODE_RATIONALE ->
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    getContacts()
-                else
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS))
-                        requireActivity().supportFragmentManager.popBackStack() // срабатывает много раз при отказе без “Never ask again” (при Rationale)
-                    else createAlertDialogNeverAskAgain() // срабатывает один раз при отказе с “Never ask again” (при Rationale)
+    private val requestPermissionsLauncherRationale:ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()){isPermission ->
+            if(isPermission)
+                getContacts()
+            else{
+                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS))
+                    requireActivity().supportFragmentManager.popBackStack() // срабатывает много раз при отказе без “Never ask again” (при Rationale)
+                else createAlertDialogNeverAskAgain() // срабатывает один раз при отказе с “Never ask again” (при Rationale)
+            }
         }
-        @Suppress("DEPRECATION")
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
 
-    @Suppress("DEPRECATION")
     private fun createAlertDialogRationale() {
         AlertDialog.Builder(requireContext())
             .setTitle("Доступ к контактам")
@@ -101,7 +87,7 @@ class ContactsFragment : Fragment() {
                 "Доступ к контактам необходим для отображения ваших контактов в приложении ${getString(R.string.app_name)}"
             )
             .setPositiveButton("Продолжить") { _, _ ->
-                requestPermissions(REQUEST_CODE_RATIONALE)
+                requestPermissionsLauncherRationale.launch(Manifest.permission.READ_CONTACTS)
             }
             .setNegativeButton(CANCEL) { _, _ ->
                 requireActivity().supportFragmentManager.popBackStack()
@@ -113,8 +99,7 @@ class ContactsFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Доступ к контактам")
             .setMessage(
-                "В дальнейшем для возможности отображения ваших контактов необходимо будет разрешить доступ к контактам в настройках приложения ${getString(R.string.app_name)}."
-            )
+                "В дальнейшем для возможности отображения ваших контактов необходимо будет разрешить доступ к контактам в настройках приложения ${getString(R.string.app_name)}.")
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 requireActivity().supportFragmentManager.popBackStack()
             }
