@@ -2,33 +2,39 @@ package com.example.weather.view
 
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.ContentResolver
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weather.R
 import com.example.weather.databinding.ContactsFragmentsBinding
 import com.example.weather.utils.CANCEL
+import com.example.weather.viewmodel.AppStateContacts
+import com.example.weather.viewmodel.ContactsViewModel
 
 class ContactsFragment : Fragment() {
 
     private var _binding: ContactsFragmentsBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel:ContactsViewModel by lazy {
+        ViewModelProvider(this)[ContactsViewModel::class.java]
+    }
+
+    private val contactsAdapter:ContactsAdapter by lazy {
+        ContactsAdapter()
+    }
 
     companion object {
         fun newInstance() = ContactsFragment()
@@ -47,7 +53,29 @@ class ContactsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.contactsList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = contactsAdapter
+        }
+
+        viewModel.getLiveData().observe(viewLifecycleOwner){
+            renderData(it)
+        }
         checkPermission()
+    }
+
+    private fun renderData(appStateContacts: AppStateContacts) {
+        when(appStateContacts){
+            is AppStateContacts.Contacts ->{
+                // делаем невидимым progressBar
+                binding.includeLoadingLayout.loadingLayout.visibility = View.GONE
+                contactsAdapter.setContactsList(appStateContacts.listContacts)
+            }
+            AppStateContacts.Loading ->
+                // делаем видимым progressBar
+                binding.includeLoadingLayout.loadingLayout.visibility = View.VISIBLE
+        }
     }
 
     private fun checkPermission() {
@@ -56,7 +84,7 @@ class ContactsFragment : Fragment() {
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.READ_CONTACTS
-            ) == PackageManager.PERMISSION_GRANTED -> getContacts()
+            ) == PackageManager.PERMISSION_GRANTED -> viewModel.getContacts()
             //  запрашиваем разрешение (с Rationale) - вызывается в случае первичного отказа пользователя в разрешении на чтение контактов
             shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> createAlertDialogRationale()
             else -> requestPermissionsLauncher.launch(Manifest.permission.READ_CONTACTS) // запрашиваем разрешение (без Rationale)
@@ -66,7 +94,7 @@ class ContactsFragment : Fragment() {
     private val requestPermissionsLauncher:ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()){isPermission ->
             if(isPermission)
-                getContacts()
+                viewModel.getContacts()
             else{
                 if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) // срабатывает один раз при первичном отказе (до Rationale)
                     requireActivity().supportFragmentManager.popBackStack()
@@ -77,7 +105,7 @@ class ContactsFragment : Fragment() {
     private val requestPermissionsLauncherRationale:ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()){isPermission ->
             if(isPermission)
-                getContacts()
+                viewModel.getContacts()
             else{
                 if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS))
                     requireActivity().supportFragmentManager.popBackStack() // срабатывает много раз при отказе без “Never ask again” (при Rationale)
@@ -133,31 +161,6 @@ class ContactsFragment : Fragment() {
             action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
             data = Uri.parse("package:" + context?.packageName)
         })
-    }
-
-    @SuppressLint("Range")
-    private fun getContacts() {
-        context?.let {
-            val contentResolver = it.contentResolver
-            val cursorContacts = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.Contacts.DISPLAY_NAME)
-            cursorContacts?.let{cursor ->
-                if (cursor.moveToFirst()){
-                    do {
-                        val contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-                        addView(it,contactName)
-                    } while (cursor.moveToNext())
-                }
-            }
-            cursorContacts?.close()
-        }
-    }
-
-    private fun addView(context: Context, contactName: String?) {
-        binding.containerContacts.addView(AppCompatTextView(context).apply {
-            text = contactName
-            textSize = resources.getDimension(R.dimen.contacts_text_size)
-        })
-
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

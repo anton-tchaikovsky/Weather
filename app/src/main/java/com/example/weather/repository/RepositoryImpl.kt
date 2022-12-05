@@ -1,5 +1,7 @@
 package com.example.weather.repository
 
+import android.annotation.SuppressLint
+import android.provider.ContactsContract
 import com.example.weather.app.AppWeather
 import com.example.weather.model.RemoteDataWeatherSource
 import com.example.weather.model.Themes
@@ -57,10 +59,37 @@ class RepositoryHistoryImpl:RepositoryHistory{
 
 }
 
-class RepositoryThemesImpl: RepositoryThemes {
+class RepositoryContactsImpl: RepositoryContacts {
+    private val context = AppWeather.ProviderContextImpl.context
+    @SuppressLint("Range")
+    override fun getContacts(): List<String> {
+        val contactsList: MutableList<String> = mutableListOf()
+        context.let {
+            val contentResolver = it.contentResolver
+            val cursorContacts = contentResolver.query(
+                ContactsContract.Contacts.CONTENT_URI,
+                null,
+                null,
+                null,
+                ContactsContract.Contacts.DISPLAY_NAME + " ASC"
+            )
+            cursorContacts?.let { cursor ->
+                if (cursor.moveToFirst()) {
+                    do {
+                        contactsList.add(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)))
+                    } while (cursor.moveToNext())
+                }
+            }
+            cursorContacts?.close()
+            return contactsList.toList()
+        }
+    }
+}
+
+class RepositoryThemesImpl : RepositoryThemes {
 
     override fun getTheme(themeKey: String) =
-        when(themeKey){
+        when (themeKey) {
             Themes.SUMMER.themeKey -> Themes.SUMMER.themeRes
             Themes.WINTER.themeKey -> Themes.WINTER.themeRes
             Themes.SPRING.themeKey -> Themes.SPRING.themeRes
