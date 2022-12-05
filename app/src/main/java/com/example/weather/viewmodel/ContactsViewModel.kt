@@ -14,4 +14,5 @@ class ContactsViewModel (private val liveData: MutableLiveData<AppStateContacts>
         liveData.value = AppStateContacts.Loading
         liveData.value = AppStateContacts.Contacts(repositoryContacts.getContacts())
     }
+
 }

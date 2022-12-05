@@ -33,11 +33,20 @@ class ContactsFragment : Fragment() {
     }
 
     private val contactsAdapter:ContactsAdapter by lazy {
-        ContactsAdapter()
+        ContactsAdapter{
+            startActivity(Intent().apply {
+                action = Intent.ACTION_DIAL
+                data = Uri.parse("tel: $it")
+            })
+        }
     }
 
     companion object {
         fun newInstance() = ContactsFragment()
+    }
+
+    fun interface OnItemCityClickListener{
+        fun onItemClick(contactNumber:String)
     }
 
     override fun onCreateView(

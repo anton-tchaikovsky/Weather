@@ -62,21 +62,36 @@ class RepositoryHistoryImpl:RepositoryHistory{
 class RepositoryContactsImpl: RepositoryContacts {
     private val context = AppWeather.ProviderContextImpl.context
     @SuppressLint("Range")
-    override fun getContacts(): List<String> {
-        val contactsList: MutableList<String> = mutableListOf()
+    override fun getContacts(): List<Pair<String, String>> {
+        val contactsList: MutableList<Pair<String, String>> = mutableListOf()
+       // массив запрашиваемых данных
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.HAS_PHONE_NUMBER,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+        )
         context.let {
             val contentResolver = it.contentResolver
             val cursorContacts = contentResolver.query(
-                ContactsContract.Contacts.CONTENT_URI,
+                ContactsContract.CommonDataKinds
+                    .Phone.CONTENT_URI,
+                projection,
                 null,
                 null,
-                null,
-                ContactsContract.Contacts.DISPLAY_NAME + " ASC"
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
             )
             cursorContacts?.let { cursor ->
                 if (cursor.moveToFirst()) {
                     do {
-                        contactsList.add(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)))
+                        // проверяем, что контакт содержит номер телефона
+                        if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(projection[0]))) > 0) {
+                            contactsList.add(
+                                Pair(
+                                    cursor.getString(cursor.getColumnIndex(projection[1])),
+                                    cursor.getString(cursor.getColumnIndex(projection[2]))
+                                )
+                            )
+                        }
                     } while (cursor.moveToNext())
                 }
             }

@@ -1,6 +1,5 @@
 package com.example.weather.repository
 
-import android.content.Context
 import com.example.weather.model.Weather
 import com.example.weather.model.city.City
 import com.example.weather.model.city.Location
@@ -36,7 +35,7 @@ interface RepositoryHistory{
 }
 
 fun interface RepositoryContacts{
-    fun getContacts():List<String>
+    fun getContacts():List<Pair<String,String>>
 }
 
 // интерфейс для запроса

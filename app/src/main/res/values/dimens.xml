@@ -11,5 +11,6 @@
     <dimen name="margin_15_dp">15dp</dimen>
     <dimen name="margin_5_dp">5dp</dimen>
     <dimen name="text_margin">16dp</dimen>
-    <dimen name="contacts_text_size">10sp</dimen>
+    <dimen name="contact_name_text_size">10sp</dimen>
+    <dimen name="contact_number_text_size">8sp</dimen>
 </resources>

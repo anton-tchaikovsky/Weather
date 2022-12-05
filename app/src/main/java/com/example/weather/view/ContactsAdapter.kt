@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.databinding.ContactsItemBinding
 
-class ContactsAdapter : RecyclerView.Adapter<ContactsAdapter.ViewHolder>() {
+class ContactsAdapter(private var itemContactClickListener: ContactsFragment.OnItemCityClickListener?) : RecyclerView.Adapter<ContactsAdapter.ViewHolder>() {
 
-    private var contactsList: List<String> = listOf()
+    private var contactsList: List<Pair<String, String>> = listOf()
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setContactsList(contactsList: List<String>) {
+    fun setContactsList(contactsList: List<Pair<String, String>>) {
         this.contactsList = contactsList
         notifyDataSetChanged()
     }
@@ -28,14 +28,21 @@ class ContactsAdapter : RecyclerView.Adapter<ContactsAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = contactsList.size
 
-    class ViewHolder(private val binding: ContactsItemBinding): RecyclerView.ViewHolder(binding.root) {
-        fun setContact(contactName: String) {
+    inner class ViewHolder(private val binding: ContactsItemBinding): RecyclerView.ViewHolder(binding.root) {
+        fun setContact(contact: Pair<String, String>) {
             binding.contactName.apply {
-                text = contactName
-                textSize = resources.getDimension(R.dimen.contacts_text_size)
+                text = contact.first
+                textSize = resources.getDimension(R.dimen.contact_name_text_size)
+            }
+            binding.contactNumber.apply {
+                text = contact.second
+                textSize = resources.getDimension(R.dimen.contact_number_text_size)
+
+                binding.root.setOnClickListener{
+                    itemContactClickListener?.onItemClick(contact.second)
+                }
             }
         }
     }
-
 }
 
