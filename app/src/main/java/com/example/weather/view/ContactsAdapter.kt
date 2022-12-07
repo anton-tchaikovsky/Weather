@@ -44,5 +44,9 @@ class ContactsAdapter(private var itemContactClickListener: ContactsFragment.OnI
             }
         }
     }
+
+    fun removeListener(){
+        itemContactClickListener=null
+    }
 }
 

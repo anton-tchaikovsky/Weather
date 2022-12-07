@@ -1,5 +1,6 @@
 package com.example.weather.model.room
 
+import android.database.Cursor
 import androidx.room.*
 
 @Dao
@@ -23,5 +24,13 @@ interface HistoryDao {
     @Delete
     fun deleteListHistoryEntity(listHistoryEntity: List<HistoryEntity>)
 
+    @Query("DELETE FROM HistoryEntity WHERE id = :id")
+    fun deleteHistoryEntityById(id:Long)
+
+    @Query("SELECT * FROM HistoryEntity WHERE id = :id")
+    fun getCursorHistoryEntity(id:Long):Cursor
+
+    @Query("SELECT * FROM HistoryEntity")
+    fun getCursorHistoryEntity():Cursor
 
 }

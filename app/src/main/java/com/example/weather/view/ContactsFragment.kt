@@ -183,6 +183,7 @@ class ContactsFragment : Fragment() {
 
     override fun onDestroyView() {
         _binding = null
+        contactsAdapter.removeListener()
         super.onDestroyView()
     }
 }
