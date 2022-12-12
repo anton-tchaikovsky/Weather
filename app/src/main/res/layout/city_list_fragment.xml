@@ -19,6 +19,19 @@
             app:layout_constraintRight_toRightOf="parent"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/locationFAB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/floating_button"
+            app:layout_constraintBottom_toTopOf="@+id/cityFAB"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@null"
+            tools:ignore="ContentDescription"
+            app:maxImageSize="@dimen/fab_icon_size"
+            android:src="@drawable/map_icon"
+            />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/cityFAB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,7 +42,6 @@
             tools:ignore="ContentDescription"
             app:maxImageSize="@dimen/fab_icon_size"
             android:src="@drawable/russia"
-            android:visibility="invisible"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

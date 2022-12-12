@@ -71,7 +71,7 @@ class ContactsFragment : Fragment() {
         viewModel.getLiveData().observe(viewLifecycleOwner){
             renderData(it)
         }
-        checkPermission()
+        checkPermissionContacts()
     }
 
     private fun renderData(appStateContacts: AppStateContacts) {
@@ -87,7 +87,7 @@ class ContactsFragment : Fragment() {
         }
     }
 
-    private fun checkPermission() {
+    private fun checkPermissionContacts() {
         // проверка, есть ли разрешение на чтение контактов
         when {
             ContextCompat.checkSelfPermission(
