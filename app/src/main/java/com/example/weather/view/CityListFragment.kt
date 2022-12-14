@@ -193,19 +193,7 @@ class CityListFragment : Fragment() {
             createAlertDialogForNoNetworkConnection()
         else if (throwable is IndexOutOfBoundsException)
             createAlertDialogNoCitySearch()
-        else createAlertDialogForOtherErrors()
-    }
-
-    // создание диалогового окна на случай других ошибок, требующих внесения программных изменений в запрос
-    private fun createAlertDialogForOtherErrors() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(MESSAGE_ERROR)
-            .setIcon(R.drawable.ic_baseline_error_24)
-            .setMessage(MESSAGE_APP_CLOSE)
-            .setCancelable(false)
-            .setPositiveButton(android.R.string.ok)
-            { dialog, _ -> dialog.dismiss() }
-            .show()
+        else throwable.printStackTrace()
     }
 
     // создание диалогового окна на случай отсутствия подключения к интернету
