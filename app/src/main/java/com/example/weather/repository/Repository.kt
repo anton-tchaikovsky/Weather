@@ -34,6 +34,10 @@ interface RepositoryHistory{
     fun deleteAllHistoryWeatherByCity(city: City)
 }
 
+fun interface RepositoryCitySearch{
+    fun getLocation(cityName: String):City
+}
+
 fun interface RepositoryContacts{
     fun getContacts():List<Pair<String,String>>
 }

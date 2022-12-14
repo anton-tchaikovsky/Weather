@@ -1,6 +1,7 @@
 package com.example.weather.repository
 
 import android.annotation.SuppressLint
+import android.location.Geocoder
 import android.provider.ContactsContract
 import com.example.weather.app.AppWeather
 import com.example.weather.model.RemoteDataWeatherSource
@@ -98,6 +99,15 @@ class RepositoryContactsImpl: RepositoryContacts {
             cursorContacts?.close()
             return contactsList.toList()
         }
+    }
+}
+
+class RepositoryCitySearchImpl:RepositoryCitySearch{
+    private val context = AppWeather.ProviderContextImpl.context
+    override fun getLocation(cityName: String): City {
+        val geocoder = Geocoder(context)
+        val address = geocoder.getFromLocationName(cityName, 1)[0]
+        return City(address.locality, address.latitude, address.longitude)
     }
 }
 

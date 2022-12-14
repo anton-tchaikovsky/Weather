@@ -122,7 +122,7 @@ class WeatherFragment : Fragment() {
     }
 
     // создание диалогового окна на случай ошибок получения данных из интернета, требующих внесения программных изменений в запрос
-    private fun createAlertDialogForNoOtherErrors() {
+    private fun createAlertDialogForOtherErrors() {
         AlertDialog.Builder(requireContext())
             .setTitle(MESSAGE_ERROR)
             .setIcon(R.drawable.ic_baseline_error_24)
@@ -140,7 +140,7 @@ class WeatherFragment : Fragment() {
         if ((throwable is UnknownHostException) && !isConnect(context))
             createAlertDialogForNoNetworkConnection()
         else
-            createAlertDialogForNoOtherErrors()
+            createAlertDialogForOtherErrors()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

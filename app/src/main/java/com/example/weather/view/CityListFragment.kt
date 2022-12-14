@@ -1,26 +1,13 @@
 package com.example.weather.view
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Geocoder
-import android.location.LocationListener
-import android.location.LocationManager
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -29,19 +16,13 @@ import com.example.weather.R
 import com.example.weather.databinding.CityListFragmentBinding
 import com.example.weather.model.city.City
 import com.example.weather.model.city.Location
-import com.example.weather.utils.CANCEL
-import com.example.weather.utils.IS_RUSSIAN
-import com.example.weather.utils.TAG_HISTORY_WEATHER_FRAGMENT
-import com.example.weather.utils.TAG_WEATHER_FRAGMENT
-import com.example.weather.viewmodel.AppState
+import com.example.weather.utils.*
+import com.example.weather.viewmodel.AppStateCityList
+import com.example.weather.viewmodel.AppStateCitySearch
 import com.example.weather.viewmodel.CityListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
-
-
-private const val REFRESH_PERIOD = 600L
-private const val MINIMAL_DISTANCE = 100f
 
 class CityListFragment : Fragment() {
 
@@ -56,12 +37,7 @@ class CityListFragment : Fragment() {
     // создаем адаптер CityListFragmentAdapter и передаем в конструктор объект OnItemCityClickListener,
     // при этом переопределяем метод onItemClick(Weather) (реализация через лямбду)
     private val citiesListAdapter = CityListAdapter { city ->
-        activity?.supportFragmentManager?.apply {
-            beginTransaction()
-                .hide(this@CityListFragment) // скрываем текущий фрагмент(при popBackStake вернется)
-                .add(R.id.container, WeatherFragment.newInstance(city), TAG_WEATHER_FRAGMENT)
-                .addToBackStack("")
-                .commitAllowingStateLoss()}
+        showWeather(city)
     }
 
     // создаем ссылку на viewModel
@@ -96,28 +72,39 @@ class CityListFragment : Fragment() {
         //запрос в настройки для получения информации о сохраненной локации
         isRussian = activity?.getPreferences(MODE_PRIVATE)?.getBoolean(IS_RUSSIAN, true) ?: true
 
-        // получение ссылки на WeatherListViewModel, не на прямую, а через ViewModelProvider
+        // получение ссылки на CityListViewModel, не на прямую, а через ViewModelProvider
         viewModel = ViewModelProvider(this@CityListFragment)[CityListViewModel::class.java]
 
         // создание наблюдателя, обработка исключения, при отсутствии данных
-        val observer = Observer<AppState>{
+        val observer = Observer<AppStateCityList>{
             try {
                 renderData(it)
             } catch (e:IllegalStateException){
-                binding.root.showSnackbar(e.message.toString(), R.string.return_loading){
-                    viewModel.getCityListIf(isRussian)
+                binding.run {
+                    // скрываем FAB
+                    cityFAB.visibility = View.GONE
+                    searchFAB.visibility = View.GONE
+                    // отображаем snackbar с ошибкой загрузки данных
+                    root.showSnackbar(e.message.toString(), R.string.return_loading){
+                        viewModel.getCityListIf(isRussian)
+                    }
                 }
+
             }
         }
 
         viewModel.run {
-            //создание ссылки на LiveData и передача liveDataBackground информации о владельце жизненного цикла CityListFragment и наблюдателе
-            getLiveData().observe(viewLifecycleOwner, observer)
+            //создание ссылки на LiveDataCityList() и передача информации о владельце жизненного цикла CityListFragment и наблюдателе
+            getLiveDataCityList().observe(viewLifecycleOwner, observer)
             //первичный запрос в CityListViewModel для получения информации о списке городов
             loadingCityList(if (isRussian)
                 Location.LocationRus
             else
                 Location.LocationWorld)
+            //создание ссылки на LiveDataCitySearch и передача информации о владельце жизненного цикла CityListFragment и наблюдателе
+            getLiveDataCitySearch().observe(viewLifecycleOwner){
+                renderData(it)
+            }
         }
 
         // установка слушателя на cityFAB
@@ -131,181 +118,28 @@ class CityListFragment : Fragment() {
             }
         }
 
-        // установка слушателя на locationFAB
-        binding.locationFAB.setOnClickListener{
-            checkPermissionLocation()
-        }
-    }
-
-    private fun checkPermissionLocation(){
-        // проверка, есть ли разрешение на чтение локации
-        when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> getLocation()
-            //  запрашиваем разрешение (с Rationale) - вызывается в случае первичного отказа пользователя в разрешении на чтение локации
-            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> createAlertDialogRationale()
-            else -> requestPermissionsLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) // запрашиваем разрешение (без Rationale)
-        }
-    }
-
-    private val requestPermissionsLauncher: ActivityResultLauncher<String> =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()){ isPermission ->
-            if(isPermission)
-                getLocation()
-            else{
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) // срабатывает много раз после отказа с “Never ask again” (после Rationale)
-                    createAlertDialogOpenAppSetting()
-            }
-        }
-
-    private val requestPermissionsLauncherRationale: ActivityResultLauncher<String> =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()){ isPermission ->
-            if(isPermission)
-                getLocation()
-            else{
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) // срабатывает один раз при отказе с “Never ask again” (при Rationale)
-                    createAlertDialogNeverAskAgain()
-            }
-        }
-
-    private fun createAlertDialogRationale() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Доступ к геолокации")
-            .setMessage(
-                "Доступ к геолокации необходим для отображения погоды в вашем текущем местоположении"
-            )
-            .setPositiveButton("Продолжить") { _, _ ->
-                requestPermissionsLauncherRationale.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-            .setNegativeButton(CANCEL) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    private fun createAlertDialogOpenAppSetting() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Доступ к геолокации")
-            .setMessage(
-                "Для возможности отображения погоды в вашем текущем местоположении необходимо разрешить доступ к геолокации в настройках приложения ${getString(R.string.app_name)}. Перейти в настройки?"
-            )
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                openAppSetting() // открываем настройки приложения
-            }
-            .setNegativeButton(CANCEL) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun getLocation(){
-       // проверяем еще раз наличие разрешения доступа к геолокации, т.к. запрос координат геолокации требует явной проверки данного условия
-        if(ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-           // получаем менеджер для работы с геолокацией
-           val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-           // проверяем, включен ли GPS
-           if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-               val provider = locationManager.getProvider(LocationManager.GPS_PROVIDER)
-               // получаем GPS координаты
-               provider?.let {
-                   locationManager.requestLocationUpdates(
-                       LocationManager.GPS_PROVIDER,
-                       REFRESH_PERIOD,
-                       MINIMAL_DISTANCE,
-                       onLocationListener
-                   )
-               }
-           }
-           // если GPS не включен, запрашиваем последние известные данные по местоположению
-           else{
-               val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-               if (location == null)
-                   createAlertDialogNoKnownLocation()
-               else
-                   getAddressAsync(requireContext(), location)
-           }
-       }
-    }
-
-    private val onLocationListener = object : LocationListener{
-        override fun onLocationChanged(location: android.location.Location) {
-            context?.let{
-                getAddressAsync(it, location)
-            }
-        }
-        override fun onProviderDisabled(provider: String) {
-            super.onProviderDisabled(provider)
-            Toast.makeText(requireContext(), "GPS отключен", Toast.LENGTH_LONG).show()
-        }
-
-        override fun onProviderEnabled(provider: String) {
-            super.onProviderEnabled(provider)
-            Toast.makeText(requireContext(), "GPS включен", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun getAddressAsync(context: Context, location: android.location.Location) {
-        val geocoder = Geocoder(context)
-        Thread{
-            try{
-                val cityName = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                binding.locationFAB.post{
-                    createAlertDialogCityName(cityName[0].locality)
+        // установка слушателя на searchFAB
+        binding.searchFAB.setOnClickListener{
+            // создаем диалог-фрагмент для ввода названия города
+            CitySearchDialogFragment.newInstance().show(requireActivity().supportFragmentManager, " CitySearchDialogFragment")
+            // получаем результат из диалог-фрагмента
+            requireActivity().supportFragmentManager.setFragmentResultListener(KEY_FOR_CITY_NAME_SEARCH, viewLifecycleOwner
+            ) { _, result ->
+                result.getString(CITY_NAME_SEARCH)?.let{
+                    viewModel.searchCity(it)
                 }
-            } catch (e:IOException){
-                e.printStackTrace()
             }
-        }.start()
+        }
     }
 
-    private fun createAlertDialogCityName(cityName:String){
-        AlertDialog.Builder(requireContext())
-            .setTitle(cityName)
-            .setMessage(
-                "Узнать погоду?"
-            )
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                Toast.makeText(context, "Weather", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton(CANCEL){
-                    dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    private fun createAlertDialogNoKnownLocation(){
-        AlertDialog.Builder(requireContext())
-            .setTitle("GPS отключен")
-            .setMessage(
-                "Для возможности отображения погоды в вашем текущем местоположении включите GPS"
-            )
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    private fun openAppSetting(){
-        startActivity(Intent().apply {
-            action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.parse("package:" + context?.packageName)
-        })
-    }
-
-    private fun createAlertDialogNeverAskAgain(){
-        AlertDialog.Builder(requireContext())
-            .setTitle("Доступ к геолокации")
-            .setMessage(
-                "В дальнейшем для возможности отображения погоды в вашем текущем местоположении необходимо будет разрешить доступ к геолокации в настройках приложения ${getString(R.string.app_name)}.")
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setCancelable(false)
-            .show()
+    // метод создает фрагмент с погодой в городе
+    private fun showWeather(city:City){
+        activity?.supportFragmentManager?.apply {
+            beginTransaction()
+                .hide(this@CityListFragment) // скрываем текущий фрагмент(при popBackStake вернется)
+                .add(R.id.container, WeatherFragment.newInstance(city), TAG_WEATHER_FRAGMENT)
+                .addToBackStack("")
+                .commitAllowingStateLoss()}
     }
 
     // метод устанавливает изображение на FAB в зависимости от условия isRussian
@@ -331,25 +165,78 @@ class CityListFragment : Fragment() {
     }
 
     // обработка данных о погоде (в том числе о состоянии загрузки данных), полученных от liveData
-    private fun renderData(appState: AppState) {
-        when (appState){
-            AppState.Loading -> {
+    private fun renderData(appStateCityList: AppStateCityList) {
+        when (appStateCityList){
+            AppStateCityList.Loading -> {
                 binding.showLoading()
             }
-            is AppState.Success -> {
+            is AppStateCityList.Success -> {
                 binding.showFAB()
-                setCitiesList(appState.cityList)
+                setCitiesList(appStateCityList.cityList)
             }
-            is AppState.Error -> {throw appState.error
+            is AppStateCityList.Error -> {throw appStateCityList.error
             }
         }
+    }
+
+    // обработка данных о найденом городе, полученных от liveData
+    private fun renderData(appStateCitySearch: AppStateCitySearch) {
+        when (appStateCitySearch){
+            is AppStateCitySearch.Error -> onFailed(appStateCitySearch.error)
+            is AppStateCitySearch.Success -> showWeather(appStateCitySearch.city)
+        }
+    }
+
+    // метод определяет источник ошибки и открывает соответствующее диалоговое окно
+    private fun onFailed(throwable: Throwable) {
+        if ((throwable is IOException) && !isConnect(context))
+            createAlertDialogForNoNetworkConnection()
+        else if (throwable is IndexOutOfBoundsException)
+            createAlertDialogNoCitySearch()
+        else createAlertDialogForOtherErrors()
+    }
+
+    // создание диалогового окна на случай других ошибок, требующих внесения программных изменений в запрос
+    private fun createAlertDialogForOtherErrors() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(MESSAGE_ERROR)
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage(MESSAGE_APP_CLOSE)
+            .setCancelable(false)
+            .setPositiveButton(android.R.string.ok)
+            { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    // создание диалогового окна на случай отсутствия подключения к интернету
+    private fun createAlertDialogForNoNetworkConnection() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(MESSAGE_DISCONNECT)
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage(MESSAGE_MAKE_CONNECT)
+            .setCancelable(false)
+            .setPositiveButton(android.R.string.ok)
+            {dialog, _ -> dialog.dismiss()}
+            .show()
+    }
+
+    // создание диалогового окна на случай, когда город не найден
+    private fun createAlertDialogNoCitySearch() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(SEARCH)
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage(NO_SEARCH_CITY)
+            .setCancelable(false)
+            .setPositiveButton(android.R.string.ok)
+            { dialog, _ -> dialog.dismiss()}
+            .show()
     }
 
     // метод настраивает отображение при иммитации загрузки
     private fun CityListFragmentBinding.showLoading() {
         // отключение видимости FAB
         cityFAB.visibility = View.GONE
-        locationFAB.visibility = View.GONE
+        searchFAB.visibility = View.GONE
         // включение видимости макета c progressBar
         includeLoadingLayout.loadingLayout.visibility = View.VISIBLE
     }
@@ -360,7 +247,7 @@ class CityListFragment : Fragment() {
         cityFAB.setImageDrawableIf(isRussian)
         // включение видимости FAB
         cityFAB.visibility = View.VISIBLE
-        locationFAB.visibility = View.VISIBLE
+        searchFAB.visibility = View.VISIBLE
         // отключение видимости макета c progressBar
         includeLoadingLayout.loadingLayout.visibility = View.GONE
     }
