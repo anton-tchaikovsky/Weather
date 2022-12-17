@@ -1,9 +1,7 @@
 package com.example.weather.service
 
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.weather.R
@@ -15,14 +13,9 @@ class FirebaseService : FirebaseMessagingService() {
     companion object {
         private const val KEY_TITLE = "KeyTitle"
         private const val KEY_MESSAGE = "KeyMessage"
-        private const val CHANNEL_ID_FIREBASE = "ChannelId"
-        private const val NOTIFICATION_ID_FIREBASE = 37
-        const val CHANNEL_NAME_FIREBASE = "ChannelName"
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        Log.v("@@@", "Сервис в работе")
+        const val CHANNEL_ID_FIREBASE = "ChannelId"
+        const val NOTIFICATION_ID_FIREBASE = 2
+        const val CHANNEL_NAME_FIREBASE = "ChannelForFirebase"
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -47,22 +40,9 @@ class FirebaseService : FirebaseMessagingService() {
         // создаем notificationManager
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-        // создаем канал уведомления
-        initNotificationChannel(notificationManager)
-
         // запускаем уведомление
         notificationManager.notify(NOTIFICATION_ID_FIREBASE, notification)
         }
-
-
-    private fun initNotificationChannel(notificationManager:NotificationManager) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            // создаем канал (без настроек)
-            val channel = NotificationChannel(CHANNEL_ID_FIREBASE, CHANNEL_NAME_FIREBASE, NotificationManager.IMPORTANCE_LOW)
-            // запускаем канал
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
 
     override fun onNewToken(token: String) {
         Log.v("@@@", token)
