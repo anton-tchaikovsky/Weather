@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.RequiresApi
@@ -16,7 +17,7 @@ import com.example.weather.broadcastReceiver.ConnectivityBroadcastReceiver
 import com.example.weather.databinding.WeatherActivityBinding
 import com.example.weather.utils.*
 import com.example.weather.viewmodel.ThemeViewModel
-import kotlinx.android.synthetic.main.weather_activity.*
+import com.google.firebase.messaging.FirebaseMessaging
 
 class WeatherActivity : AppCompatActivity() {
 
@@ -46,6 +47,14 @@ class WeatherActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(binding.container.id, CityListFragment.newInstance(), TAG_CITY_LIST_FRAGMENT)
                 .commitNow()
+        }
+
+        // получение токена устройства для Firebase
+        FirebaseMessaging.getInstance().token.addOnCompleteListener {
+            if (it.isSuccessful)
+                Log.v("@@@", it.result.toString())
+            else
+                Log.v("@@@", "Receiving token error")
         }
     }
 
