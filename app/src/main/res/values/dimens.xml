@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="city_name_margin_top">50dp</dimen>
+    <dimen name="margin_10_dp">10dp</dimen>
+    <dimen name="temperature_value_text_size">35dp</dimen>
+    <dimen name="feels_like_text_size">20sp</dimen>
+    <dimen name="floating_button">25dp</dimen>
+    <dimen name="line">1dp</dimen>
+    <dimen name="fab_icon_size">56dp</dimen>
+    <dimen name="city_item_text_size">25sp</dimen>
+    <dimen name="margin_15_dp">15dp</dimen>
+    <dimen name="margin_5_dp">5dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="contact_name_text_size">10sp</dimen>
+    <dimen name="contact_number_text_size">8sp</dimen>
+</resources>
