@@ -9,12 +9,17 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.example.weather.R
-import com.example.weather.utils.CHANNEL_ID
+import com.example.weather.utils.CHANNEL_ID_WEATHER
 import com.example.weather.utils.MESSAGE_LAUNCH_APP_TEXT
 import com.example.weather.utils.MESSAGE_LAUNCH_APP_TITLE
 import com.example.weather.view.WeatherActivity
 
 class BroadcastReceiverForStartApp : BroadcastReceiver() {
+
+    companion object{
+        const val NOTIFICATION_ID_WEATHER = 1
+    }
+
 
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,7 +28,7 @@ class BroadcastReceiverForStartApp : BroadcastReceiver() {
             PendingIntent.getActivity(context, 0, Intent(context, WeatherActivity::class.java), 0)
 
         // создаем уведомление
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID_WEATHER)
             .setSmallIcon(R.drawable.weather_icon)
             .setContentTitle(MESSAGE_LAUNCH_APP_TITLE)
             .setContentText(MESSAGE_LAUNCH_APP_TEXT)
@@ -34,7 +39,7 @@ class BroadcastReceiverForStartApp : BroadcastReceiver() {
 
         // создаем notificationManager и запускаем уведомление
         (context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).run {
-            notify(1, notification)
+            notify(NOTIFICATION_ID_WEATHER, notification)
         }
 
     }

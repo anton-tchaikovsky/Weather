@@ -1,7 +1,5 @@
 package com.example.weather.model.city
 
-fun getDefaultCity() = City("Москва", 55.755826, 37.617299900000035)
-
 fun getCityListWorld() = listOf(
         City("Лондон", 51.5085300, -0.1257400),
         City("Токио", 35.6895000, 139.6917100),

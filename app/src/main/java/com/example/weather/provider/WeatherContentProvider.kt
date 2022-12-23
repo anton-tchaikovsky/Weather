@@ -15,6 +15,12 @@ private const val URI_ID = 2 // URI для конкретной записи
 private const val ENTITY_PATH =
     "HistoryEntity" // Часть пути (будем определять путь до HistoryEntity)
 private const val AUTHORITIES = "weather.provider"
+private const val WRONG_URI = "Wrong URI: %s"
+private const val ID = "id"
+private const val CITY_NAME = "cityName"
+private const val TEMPERATURE = "temperature"
+private const val CONDITION = "condition"
+
 
 class WeatherContentProvider : ContentProvider() {
 
@@ -27,7 +33,7 @@ class WeatherContentProvider : ContentProvider() {
     private lateinit var contentUri: Uri // Адрес URI Provider
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
-        require(uriMatcher.match(uri) == URI_ID) { "Wrong URI: $uri" }
+        require(uriMatcher.match(uri) == URI_ID) { String.format(WRONG_URI, uri) }
         // Получаем доступ к данным
         val historyDao = getHistoryDao()
         // Получаем идентификатор записи по адресу
@@ -48,7 +54,7 @@ class WeatherContentProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri {
-        require(uriMatcher.match(uri) == URI_ALL) { "Wrong URI: $uri" }
+        require(uriMatcher.match(uri) == URI_ALL) { String.format(WRONG_URI, uri) }
         // Получаем доступ к данным
         val historyDao = getHistoryDao()
         // Добавляем запись о городе
@@ -97,7 +103,7 @@ class WeatherContentProvider : ContentProvider() {
         // Запрос к базе данных для одного элемента
                 historyDao.getCursorHistoryEntity(id)
             }
-            else -> throw IllegalArgumentException("Wrong URI: $uri")
+            else -> throw IllegalArgumentException(String.format(WRONG_URI, uri))
         }
         // Устанавливаем нотификацию при изменении данных в content_uri
         cursor.setNotificationUri(context!!.contentResolver, contentUri)
@@ -108,7 +114,7 @@ class WeatherContentProvider : ContentProvider() {
         uri: Uri, values: ContentValues?, selection: String?,
         selectionArgs: Array<String>?
     ): Int {
-        require(uriMatcher.match(uri) == URI_ID) { "Wrong URI: $uri" }
+        require(uriMatcher.match(uri) == URI_ID) { String.format(WRONG_URI, uri) }
         // Получаем доступ к данным
         val historyDao = getHistoryDao()
         historyDao.updateHistoryEntity(map(values))
@@ -121,10 +127,10 @@ class WeatherContentProvider : ContentProvider() {
         return if (values == null) {
             HistoryEntity()
         } else {
-            val id = if (values.containsKey("id")) values["id"] as Long else 0
-            val cityName = values["cityName"] as String
-            val temperature = values["temperature"] as Double
-            val condition = values["condition"] as String
+            val id = if (values.containsKey(ID)) values[ID] as Long else 0
+            val cityName = values[CITY_NAME] as String
+            val temperature = values[TEMPERATURE] as Double
+            val condition = values[CONDITION] as String
             HistoryEntity(id, cityName, temperature, condition)
         }
     }

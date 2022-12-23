@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.weather.R
+import com.example.weather.utils.CHANNEL_ID_FIREBASE
+import com.example.weather.utils.TAG_LOG
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -13,9 +15,7 @@ class FirebaseService : FirebaseMessagingService() {
     companion object {
         private const val KEY_TITLE = "KeyTitle"
         private const val KEY_MESSAGE = "KeyMessage"
-        const val CHANNEL_ID_FIREBASE = "ChannelId"
         const val NOTIFICATION_ID_FIREBASE = 2
-        const val CHANNEL_NAME_FIREBASE = "ChannelForFirebase"
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -45,6 +45,6 @@ class FirebaseService : FirebaseMessagingService() {
         }
 
     override fun onNewToken(token: String) {
-        Log.v("@@@", token)
+        Log.v(TAG_LOG, token)
     }
 }

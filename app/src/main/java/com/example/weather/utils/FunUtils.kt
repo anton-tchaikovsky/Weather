@@ -24,9 +24,6 @@ fun convertFromListEntityToListWeather(HistoryEntity:List<HistoryEntity>) =
 
 fun convertFromWeatherToEntity(weather: Weather) = HistoryEntity(0,weather.cityName, weather.temperature, weather.condition)
 
-fun convertFromListWeatherToListEntity(listWeather:List<Weather>) =
-    listWeather.map { HistoryEntity(0, it.cityName, it.temperature, it.condition) }
-
 // функция загружает svg-изображение по url
 fun AppCompatImageView.loadSvg(url:String){
     val imageLoader = ImageLoader.Builder(this.context)

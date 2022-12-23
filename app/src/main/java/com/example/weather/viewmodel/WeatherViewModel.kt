@@ -1,17 +1,16 @@
 package com.example.weather.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weather.model.Weather
 import com.example.weather.model.city.City
 import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.repository.RepositoryHistoryImpl
-import com.example.weather.repository.RepositoryRemoteImpl
+import com.example.weather.repository.RepositoryWeatherImpl
 
-class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = MutableLiveData<LoadingState>()): ViewModel() {
+class WeatherViewModel(private val liveData: MutableLiveData<AppStateWeather> = MutableLiveData<AppStateWeather>()): ViewModel() {
 
-    private val repositoryWeather = RepositoryRemoteImpl()
+    private val repositoryWeather = RepositoryWeatherImpl()
     private val repositoryHistory = RepositoryHistoryImpl()
 
     private val callback = object : retrofit2.Callback<WeatherDTO>{
@@ -20,13 +19,13 @@ class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = Mut
             response: retrofit2.Response<WeatherDTO>
         ) {
             if (response.isSuccessful && response.body() !=null)
-                liveData.postValue(LoadingState.Success(response.body() as WeatherDTO))
+                liveData.postValue(AppStateWeather.Success(response.body() as WeatherDTO))
             else
-                liveData.postValue(LoadingState.Error(IllegalStateException()))
+                liveData.postValue(AppStateWeather.Error(IllegalStateException()))
         }
 
         override fun onFailure(call: retrofit2.Call<WeatherDTO>, t: Throwable) {
-            liveData.postValue(LoadingState.Error(t))
+            liveData.postValue(AppStateWeather.Error(t))
         }
 
     }
@@ -34,7 +33,7 @@ class WeatherViewModel(private val liveData: MutableLiveData<LoadingState> = Mut
     fun getLiveData() = liveData
 
     fun getWeatherDTO(city: City){
-        liveData.value = LoadingState.Loading
+        liveData.value = AppStateWeather.Loading
         repositoryWeather.getWeatherFromServer(city, callback)
     }
 

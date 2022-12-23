@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weather.model.city.Location
 import com.example.weather.repository.*
+import com.example.weather.utils.ERROR_LOADING
 
 class CityListViewModel(
 
@@ -13,7 +14,7 @@ class CityListViewModel(
         MutableLiveData())   : ViewModel() {
 
     // создание переменной для репозитория, предоставляющего данные о списке городов
-    private lateinit var repositoryCityList: RepositoryCityList
+    private val repositoryCityList = RepositoryCityListImpl()
 
     // создание переменной для репозитория, предоставляющего город по его названию
     private val repositoryCitySearch = RepositoryCitySearchImpl()
@@ -22,20 +23,9 @@ class CityListViewModel(
     fun getLiveDataCityList() = liveDataCityList
     fun getLiveDataCitySearch() = liveDataCitySearch
 
-    // метод создает ссылку на репозиторий в зависимотсти от того, есть ли удаленная связь
-    private fun getSelectionSource(isConnect: Boolean) {
-        repositoryCityList = if (isConnect)
-            RepositoryRemoteImpl()
-        else
-            RepositoryLocalImpl()
-    }
-
-    // метод эммулирует, есть ли удаленная связь
-    private fun isConnect() = false
 
     // метод обеспечивает формирование данных о городах с помощью  liveData и их передачу
     fun loadingCityList(location: Location) {
-        getSelectionSource(isConnect())
         if (isSuccess()){
             // эммуляция загрузки данных
             liveDataCityList.value = AppStateCityList.Loading
@@ -49,8 +39,7 @@ class CityListViewModel(
         }
         else
             // эммуляция ошибки загрузки данных
-            liveDataCityList.postValue(AppStateCityList.Error(IllegalStateException("Ошибка загрузки данных.")))
-
+            liveDataCityList.postValue(AppStateCityList.Error(IllegalStateException(ERROR_LOADING)))
     }
 
     // метод обеспечивает передачу данных о городах (без загрузки и ошибки загрузки)

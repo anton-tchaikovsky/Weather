@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weather.R
 import com.example.weather.databinding.ContactsFragmentsBinding
-import com.example.weather.utils.CANCEL
+import com.example.weather.utils.*
 import com.example.weather.viewmodel.AppStateContacts
 import com.example.weather.viewmodel.ContactsViewModel
 
@@ -124,11 +124,9 @@ class ContactsFragment : Fragment() {
 
     private fun createAlertDialogRationale() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Доступ к контактам")
-            .setMessage(
-                "Доступ к контактам необходим для отображения ваших контактов в приложении ${getString(R.string.app_name)}"
-            )
-            .setPositiveButton("Продолжить") { _, _ ->
+            .setTitle(ACCESS_CONTACTS)
+            .setMessage(ACCESS_CONTACTS_MESSAGE_RATIONALE)
+            .setPositiveButton(CONTINUE) { _, _ ->
                 requestPermissionsLauncherRationale.launch(Manifest.permission.READ_CONTACTS)
             }
             .setNegativeButton(CANCEL) { _, _ ->
@@ -139,9 +137,8 @@ class ContactsFragment : Fragment() {
 
     private fun createAlertDialogNeverAskAgain() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Доступ к контактам")
-            .setMessage(
-                "В дальнейшем для возможности отображения ваших контактов необходимо будет разрешить доступ к контактам в настройках приложения ${getString(R.string.app_name)}.")
+            .setTitle(ACCESS_CONTACTS)
+            .setMessage(ACCESS_CONTACTS_MESSAGE_NEVER_ASK_AGAIN)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 requireActivity().supportFragmentManager.popBackStack()
             }
@@ -151,10 +148,8 @@ class ContactsFragment : Fragment() {
 
     private fun createAlertDialogOpenAppSetting() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Доступ к контактам")
-            .setMessage(
-                "Для возможности отображения ваших контактов необходимо разрешить доступ к контактам в настройках приложения ${getString(R.string.app_name)}. Перейти в настройки?"
-            )
+            .setTitle(ACCESS_CONTACTS)
+            .setMessage(ACCESS_CONTACTS_MESSAGE_OPEN_APP_SETTING)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 requireActivity().supportFragmentManager.popBackStack()
                 openAppSetting() // открываем настройки приложения

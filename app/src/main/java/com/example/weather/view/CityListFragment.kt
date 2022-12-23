@@ -189,34 +189,22 @@ class CityListFragment : Fragment() {
 
     // метод определяет источник ошибки и открывает соответствующее диалоговое окно
     private fun onFailed(throwable: Throwable) {
-        if ((throwable is IOException) && !isConnect(context))
-            createAlertDialogForNoNetworkConnection()
-        else if (throwable is IndexOutOfBoundsException)
-            createAlertDialogNoCitySearch()
+        if ((throwable is IOException) && !isConnect(context)) // отсутствует подключение к интернету
+        createDialogForFailed(MESSAGE_DISCONNECT, MESSAGE_MAKE_CONNECT)
+        else if (throwable is IndexOutOfBoundsException) // запрашиваемый город не найден
+        createDialogForFailed(SEARCH, NO_SEARCH_CITY)
         else throwable.printStackTrace()
     }
 
     // создание диалогового окна на случай отсутствия подключения к интернету
-    private fun createAlertDialogForNoNetworkConnection() {
+    private fun createDialogForFailed(title:String, message: String){
         AlertDialog.Builder(requireContext())
-            .setTitle(MESSAGE_DISCONNECT)
+            .setTitle(title)
             .setIcon(R.drawable.ic_baseline_error_24)
-            .setMessage(MESSAGE_MAKE_CONNECT)
+            .setMessage(message)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok)
             {dialog, _ -> dialog.dismiss()}
-            .show()
-    }
-
-    // создание диалогового окна на случай, когда город не найден
-    private fun createAlertDialogNoCitySearch() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(SEARCH)
-            .setIcon(R.drawable.ic_baseline_error_24)
-            .setMessage(NO_SEARCH_CITY)
-            .setCancelable(false)
-            .setPositiveButton(android.R.string.ok)
-            { dialog, _ -> dialog.dismiss()}
             .show()
     }
 

@@ -16,7 +16,7 @@ import com.example.weather.utils.convertFromListEntityToListWeather
 import com.example.weather.utils.convertFromWeatherToEntity
 import retrofit2.Callback
 
-class RepositoryLocalImpl: RepositoryCityList {
+class RepositoryCityListImpl: RepositoryCityList {
     override fun getCityList(location: Location): List<City> =
         when(location){
             Location.LocationRus -> getCityListRus()
@@ -24,14 +24,8 @@ class RepositoryLocalImpl: RepositoryCityList {
         }
 }
 
-class RepositoryRemoteImpl: RepositoryCityList, RepositoryWeather {
 
-    override fun getCityList(location: Location): List<City> =
-        when(location){
-            Location.LocationRus -> getCityListRus()
-            Location.LocationWorld -> getCityListWorld()
-        }
-
+class RepositoryWeatherImpl: RepositoryWeather {
     override fun getWeatherFromServer(city: City, callback: Callback<WeatherDTO>) =
         RemoteDataWeatherSource().getWeatherFromWebService(city, callback)
 

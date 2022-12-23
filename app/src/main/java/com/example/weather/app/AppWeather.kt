@@ -47,6 +47,5 @@ class AppWeather: Application() {
     object ProviderContextImpl: ProviderContext{
         override val context: Context
             get() = contextApp
-
     }
 }

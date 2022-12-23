@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weather.R
 import com.example.weather.broadcastReceiver.ConnectivityBroadcastReceiver
 import com.example.weather.databinding.WeatherActivityBinding
-import com.example.weather.service.FirebaseService
 import com.example.weather.utils.*
 import com.example.weather.viewmodel.ThemeViewModel
 import com.google.firebase.messaging.FirebaseMessaging
@@ -53,9 +52,9 @@ class WeatherActivity : AppCompatActivity() {
         // получение токена устройства для Firebase
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
             if (it.isSuccessful)
-                Log.v("@@@", it.result.toString())
+                Log.v(TAG_LOG, it.result.toString())
             else
-                Log.v("@@@", "Receiving token error")
+                Log.v(TAG_LOG, TOKEN_ERROR)
         }
     }
 
@@ -79,9 +78,9 @@ class WeatherActivity : AppCompatActivity() {
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             // создаем каналы (без настроек)
             //для запуска WeatherActivity при срабатывании BroadcastReceiverForStartApp
-            val channelWeather = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
+            val channelWeather = NotificationChannel(CHANNEL_ID_WEATHER, CHANNEL_NAME_WEATHER, NotificationManager.IMPORTANCE_LOW)
             //при получении уведемлений от Firebase
-            val channelFirebase =  NotificationChannel(FirebaseService.CHANNEL_ID_FIREBASE, FirebaseService.CHANNEL_NAME_FIREBASE, NotificationManager.IMPORTANCE_LOW)
+            val channelFirebase =  NotificationChannel(CHANNEL_ID_FIREBASE, CHANNEL_NAME_FIREBASE, NotificationManager.IMPORTANCE_LOW)
             // запускаем каналы
             notificationManager.run{
                 createNotificationChannel(channelWeather)

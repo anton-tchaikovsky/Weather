@@ -16,7 +16,7 @@ import com.example.weather.databinding.WeatherFragmentBinding
 import com.example.weather.model.city.City
 import com.example.weather.model.dto.WeatherDTO
 import com.example.weather.utils.*
-import com.example.weather.viewmodel.LoadingState
+import com.example.weather.viewmodel.AppStateWeather
 import com.example.weather.viewmodel.WeatherViewModel
 import java.net.UnknownHostException
 
@@ -69,17 +69,17 @@ class WeatherFragment : Fragment() {
         }
     }
 
-    private fun renderData(loadingState: LoadingState) {
+    private fun renderData(loadingState: AppStateWeather) {
         when (loadingState) {
-            is LoadingState.Error -> onFailed(loadingState.error)
-            is LoadingState.Success -> {
+            is AppStateWeather.Error -> onFailed(loadingState.error)
+            is AppStateWeather.Success -> {
                 loadingState.weatherDTO.let {
                     setWeatherForView(city, it)
                     // сохраняем историю запроса в БД
                     viewModel.saveWeather(city,it)
                 }
             }
-            LoadingState.Loading ->
+            AppStateWeather.Loading ->
                 // делаем видимым progressBar
                 binding.includeLoadingLayout.loadingLayout.visibility = View.VISIBLE
         }

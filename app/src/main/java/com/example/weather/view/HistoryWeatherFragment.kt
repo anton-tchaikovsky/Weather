@@ -20,7 +20,9 @@ class HistoryWeatherFragment : Fragment() {
 
     companion object {
         private const val KEY_CITY = "KeyCity"
+        // фрагмент для истории по всем городам
         fun newInstance() = HistoryWeatherFragment()
+        // фрагмент для истории по конкретному городу
         fun newInstance(city: City) = HistoryWeatherFragment().apply {
             arguments = Bundle().apply { putParcelable(KEY_CITY, city) }
         }
