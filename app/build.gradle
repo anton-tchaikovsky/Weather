@@ -19,6 +19,16 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            storeFile file("store.jks")
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file("api_store_key.properties").newDataInputStream())
+            storePassword properties.getProperty("storePassword")
+            keyAlias properties.getProperty("keyAlias")
+            keyPassword properties.getProperty("keyPassword")
+        }
+    }
 
     buildFeatures {
         viewBinding true
@@ -26,6 +36,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -37,8 +48,8 @@ android {
 
     buildTypes.each {
         Properties properties = new Properties()
-        properties.load(project.rootProject.file("apikey.properties").newDataInputStream())
-        def apiKey = properties.getProperty("yandex_weather_api_key", "")
+        properties.load(project.rootProject.file("api_store_key.properties").newDataInputStream())
+        def apiKey = properties.getProperty("yandex_weather_api_key")
         it.buildConfigField "String", "WEATHER_API_KEY", apiKey
     }
 
